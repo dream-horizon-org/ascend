@@ -1,0 +1,41 @@
+---
+title: Installation
+description: Installation Guide
+---
+
+# Installation
+
+## Prerequisites
+
+Before integrating the Ascend Android SDK, ensure your project meets the following requirements:
+
+- **Android API Level**: Minimum SDK 24 (Android 7.0)
+- **Target SDK**: 36 (Android 14)
+- **Java Version**: 11 or higher
+- **Kotlin**: 2.0.21 or higher
+- **Android Gradle Plugin**: 8.13.0 or higher
+
+## Gradle Setup
+
+### 1. Add Repository
+
+Add Maven Central to your project's `settings.gradle.kts` (usually already included by default):
+
+```kotlin
+dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()  // Maven Central is usually included by default
+    }
+}
+```
+
+### 2. Add Dependency
+
+Add the SDK dependency to your app module's `build.gradle.kts`:
+
+```kotlin
+dependencies {
+    implementation("com.dream.sports:ascend-android:1.0.1")
+}
+```

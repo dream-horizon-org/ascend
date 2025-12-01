@@ -1,0 +1,48 @@
+---
+import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+import { Card, CardGrid } from "@astrojs/starlight/components";
+import logo from "../assets/ascend-logo.png";
+---
+
+<StarlightPage
+  frontmatter={{
+    title: "Ascend",
+    template: "splash",
+    hero: {
+      title: "Product Growth Platform",
+      tagline:
+        "An open source experimentation platform to enable individuals or companies to test features and measure impact in an easy and customizable fashion faster, safer, and more consistent.",
+      image: {
+        file: logo,
+      },
+      actions: [
+        {
+          text: "Get started",
+          link: "/ascend/introduction/getting-started",
+          icon: "right-arrow",
+          variant: "primary",
+        },
+        {
+          text: "Read the overview",
+          link: "/ascend/introduction/overview",
+          variant: "minimal",
+        },
+      ],
+    },
+  }}
+>
+  <CardGrid>
+    <Card title="High Performance" icon="puzzle">
+      Built on vertx for high performance.
+    </Card>
+    <Card title="Advanced Targetting" icon="rocket">
+      Rule based targetting with support of conditional logic.
+    </Card>
+    <Card title="Flexible Assignments" icon="star">
+      Multiple assignment strategies.
+    </Card>
+    <Card title="Easy Integration" icon="approve-check">
+      Native SDKs quick integration.
+    </Card>
+  </CardGrid>
+</StarlightPage>

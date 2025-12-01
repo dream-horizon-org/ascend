@@ -1,0 +1,148 @@
+---
+title: Quick Start
+description: Quick Start for Android SDK Integration
+---
+---
+sidebar_position: 2
+---
+
+# Quick Start
+
+Get started with the Ascend React Native SDK in just a few steps.
+
+## Initialize the SDK
+
+1. Create a file `initAscend.ts` under src folder next to your app's index file.
+2. Import this file to your index file and call the `initAscend` method to initialise Ascend.
+3. Read following section to understand how to import and configure Ascend.
+
+### Initialise Ascend
+
+```typescript
+import Ascend from "@d11/ascend-react-native";
+import AscendExperiments from "@d11/ascend-experiments-react-native";
+
+const headers: any = { // put all headers which are required for api.dream11.com
+  'Host': 'api.dream11.com',
+  'locale': 'en-US',
+  // Add other required headers
+};
+
+const httpConfig: THttpConfig = {
+  headers,
+  shouldRetry: true,
+  apiBaseUrl: 'https://api.dream11.com'
+};
+
+const defaultValues = {
+  DUMMY_API_PATH_HERE_1: {
+    value: true,
+  },
+  DUMMY_API_PATH_HERE_2: {
+    randomBool: false,
+    randomString: 'random string',
+    randomInt: -97,
+    sports: ['cricket', 'football'],
+  },
+};
+
+/*
+* ascend-experiments config.
+* It should have atleaset following three attributes
+*/
+const ascendExperimentsPlugin = {
+  name: PLUGIN_LIST.EXPERIMENTS,
+  config: {
+    defaultValues,
+  },
+  exec: AscendExperiments
+}
+
+/*
+* ascend's initialization with basic configuration and ascend-experiments plugin
+*/
+export const initAscend = async () => {
+  return await Ascend.init({
+    httpConfig,
+    plugins: [ascendExperimentsPlugin, ...otherPlugins],
+  });
+};
+```
+
+## Use Experiments
+
+### Fetch experiment values
+
+Use following code snippet to initialise Experiment Plugin once. This operation is async. So it depends upon the consumer whether they want to wait for this operation to complete or proceed further.
+
+NOTE: By default, on initialisation of the experiment plugin, it fetches the values of API Paths configured with the plugin.
+
+```typescript
+/*
+* Get the experiment plugin instance
+*/
+const experimentPlugin = await Ascend.getPlugin<IExperiment>(PLUGIN_LIST.EXPERIMENTS);
+
+// Get boolean flag
+const boolVal = await experimentPlugin.getBooleanFlag('API_PATH', 'VARIABLE_NAME');
+
+// Get string flag
+const stringVal = await experimentPlugin.getStringFlag('API_PATH', 'VARIABLE_NAME');
+
+// Get integer flag
+const intVal = await experimentPlugin.getIntFlag('API_PATH', 'VARIABLE_NAME');
+
+// Get double flag
+const doubleVal = await experimentPlugin.getDoubleFlag('API_PATH', 'VARIABLE_NAME');
+
+// Get all variables for an experiment
+const allVars = await experimentPlugin.getAllVariables('API_PATH');
+```
+
+## Use Events
+
+Coming soon...
+
+## Example Usage in React Component
+
+```typescript
+import React, { useEffect, useState } from 'react';
+import { View, Text, Button } from 'react-native';
+import { initAscend } from './initAscend';
+
+const MyComponent = () => {
+  const [experimentValue, setExperimentValue] = useState(false);
+
+  useEffect(() => {
+    const initializeSDK = async () => {
+      try {
+        await initAscend();
+        console.log('Ascend initialized successfully');
+      } catch (error) {
+        console.error('Failed to initialize Ascend:', error);
+      }
+    };
+
+    initializeSDK();
+  }, []);
+
+  const getExperimentValue = async () => {
+    try {
+      const experimentPlugin = await Ascend.getPlugin<IExperiment>(PLUGIN_LIST.EXPERIMENTS);
+      const value = await experimentPlugin.getBooleanFlag('DUMMY_API_PATH_HERE_1', 'value');
+      setExperimentValue(value);
+    } catch (error) {
+      console.error('Failed to get experiment value:', error);
+    }
+  };
+
+  return (
+    <View>
+      <Text>Experiment Value: {experimentValue.toString()}</Text>
+      <Button title="Get Experiment Value" onPress={getExperimentValue} />
+    </View>
+  );
+};
+
+export default MyComponent;
+```

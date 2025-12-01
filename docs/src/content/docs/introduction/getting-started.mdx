@@ -1,0 +1,113 @@
+---
+title: Getting Started
+description: Install Ascend platform in under 10 minutes
+---
+
+Get up and running with Ascend on a docker. This guide will walk you through installation, configuration, and creating your first experiment.
+
+## Prerequisites
+
+### Hardware Requirements
+
+#### Local Development
+
+| Resource | Minimum |
+|----------|---------|
+| **RAM** | 8 GB |
+| **CPU** | 4 cores |
+| **Disk Space** | 20 GB free |
+| **OS** | macOS 11+, Linux (Ubuntu 20.04+) |
+
+### Software Requirements
+
+The following tools must be installed on your system:
+
+| Tool | Minimum Version | Installation |
+|------|----------------|--------------|
+| **Docker** | v20.10+ | [Install Guide](https://docs.docker.com/get-docker/) |
+| **curl** | v7.68+ | Pre-installed on most systems |
+
+:::note
+The installation script will automatically check for these prerequisites and guide you through installing any missing tools.
+:::
+
+
+## Quick Start: One-Command Installation
+
+Get Ascend running on a docker in under 10 minutes:
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/**/install.sh)
+```
+
+### What This Does
+
+The installation script automatically:
+
+1. ✅ Clones the Ascend repository
+2. ✅ Checks and installs prerequisites (Docker etc.)
+3. ✅ Sets up local Docker registry
+4. ✅ Deploys Ascend with all components
+5. ✅ Open localhost:3000 in browser
+
+
+**Expected Duration**: 7-10 minutes (depending on internet speed and hardware)
+
+### Installation Output
+
+You'll see output similar to:
+
+Now that Ascend is installed and configured, you can create your first experiment:
+
+1. **Create an Environment**: Set up an isolated namespace for your services
+2. **Define Your Service**: Create a service definition JSON
+3. **Configure Provisioning**: Specify how components should be deployed
+4. **Deploy**: Use the CLI to deploy your service
+
+For a complete walkthrough, see:
+- [Create Your First Experiment](/ascend/howto/deploy-first-service) - Step-by-step tutorial
+- [Key Concepts](/ascend/concepts/overview) - Understand environments, services, and components
+
+
+## Troubleshooting
+
+
+### Uninstallation
+
+To remove Ascend from your cluster:
+
+```bash
+# Using the uninstall script
+cd ascend
+./uninstall.sh
+
+```
+
+## What's Installed
+
+After successful installation, your cluster will have:
+
+| Component | Purpose |
+|-----------|---------|
+| **ascend-testlab** | Backend Experiment service |
+| **ascend-flockr** | Backend Audience service |
+| **ascend-panel** | Frontend panel for Experimentation |
+| **ascend-sdks** | SDKs for iOS, Android and RN Integration |
+
+## Next Steps
+
+:::tip[🎉 Success!]
+Congratulations! You've successfully installed Ascend and created your first experiment.
+
+**Next steps:**
+- [Deploy Your First Service](/ascend/howto/deploy-first-service) - Complete walkthrough
+- [Key Concepts](/ascend/concepts/overview) - Understand key concepsts experiments, cohorts, assignment etc.
+- [How-To Guides](/ascend/howto/overview) - How to Guide
+:::
+
+## Additional Resources
+
+- **GitHub Repository**: https://github.com/
+- **Issue Tracker**: https://github.com/
+
+- **License**: MIT License

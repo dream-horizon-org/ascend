@@ -1,0 +1,63 @@
+---
+title: Quick Start
+description: Quick Start for Android SDK Integration
+---
+# Quick Start
+
+Get started with the Ascend Android SDK in just a few steps.
+
+## Initialize the SDK
+
+```kotlin
+import android.app.Application
+import android.util.Log
+import com.application.ascend_android.*
+import com.google.gson.JsonObject
+
+class MyApplication : Application() {
+    override fun onCreate() {
+        super.onCreate()
+
+        val httpConfig = HttpConfig(
+            apiBaseUrl = "https://your-api.com", // Replace with your actual API endpoint
+            headers = hashMapOf("api-key" to "your-key") // Replace with your actual API key
+        )
+
+        val experimentConfig = ExperimentConfig.Builder(object : IExperimentCallback {
+            override fun onSuccess() {
+                // Called when experiments are successfully fetched
+            }
+            override fun onFailure(throwable: Throwable) {
+                // Called when experiment fetch fails
+            }
+        })
+            .defaultValues(hashMapOf("button_color" to JsonObject().apply { addProperty("color", "blue") }))
+            .shouldFetchOnInit(true) // Fetch experiments immediately on initialization
+            .httpConfig(httpConfig)
+            .build()
+
+        val experimentPluginConfig = PluginConfig(::DRSPlugin, Plugins.EXPERIMENTS.pluginName, experimentConfig)
+
+        val ascendConfig = AscendConfig(httpConfig, arrayListOf(experimentPluginConfig), ClientConfig("your-key")) // Replace with your actual API key
+
+        Ascend.init(ascendConfig, this)
+
+        Ascend.user.setUser("user123") // Replace with your actual user ID
+    }
+}
+```
+
+## Use Experiments
+
+```kotlin
+val experimentPlugin = Ascend.getPlugin<DRSPlugin>(Plugins.EXPERIMENTS)
+
+val buttonColor = experimentPlugin.getExperimentService()
+    .getStringFlag("button_color", "color")
+
+button.setBackgroundColor(Color.parseColor(buttonColor))
+```
+
+## Use Events
+
+Coming soon...

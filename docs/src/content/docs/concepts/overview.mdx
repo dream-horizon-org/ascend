@@ -1,0 +1,179 @@
+---
+title: Key Concepts
+description: Understanding Ascend's core concepts and terminology
+---
+
+## What is Ascend?
+
+Ascend is a comprehensive experimentation platform that consists of:
+
+- **Backend Experiment Server (TestLab)**: A high-performance Java-based server built on Vert.x that manages experiments, handles variant assignments, and processes experiment data
+- **Backend Audience Server (TestLab)**: A high-performance Java-based server built on Vert.x that manages experiments, handles variant assignments, and processes experiment data
+- **Cross-Platform SDKs**: Native SDKs for Android, iOS, and React Native that seamlessly integrate with your applications
+- **Flexible Architecture**: Plugin-based architecture that allows extensibility and customization
+
+## Core Concepts
+
+### Experiments
+
+An **experiment** in Ascend is a controlled test where you compare different variants (versions) of a feature to determine which performs better. Each experiment includes:
+
+- **Variants**: Different versions of your feature to test (e.g., control, treatment)
+- **Allocation Strategy**: How users are assigned to variants (random, round-robin)
+- **Target Rules**: Conditions that determine which users are eligible for the experiment
+- **Cohorts**: User segments for targeted experimentation
+
+### Assignment Strategies
+
+Ascend supports multiple assignment strategies:
+
+- **Stratified Assignment**: Users are assigned based on their stable identifier, ensuring consistent experience
+- **Cohort-Based Assignment**: Users are assigned based on cohort membership with custom variant weights per cohort
+
+### Experiment Lifecycle
+
+1. **Draft**: Experiment is being configured
+2. **Live**: Experiment is actively running
+3. **Paused**: Experiment is temporarily stopped
+4. **Concluded**: Experiment has finished and results are analyzed
+5. **Terminated**: Experiment was stopped before completion
+
+## Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    Client Applications                   │
+│  ┌──────────┐    ┌──────────┐    ┌──────────────────┐  │
+│  │  Android │    │   iOS    │    │  React Native    │  │
+│  │   SDK    │    │   SDK    │    │       SDK        │  │
+│  └────┬─────┘    └────┬─────┘    └────────┬─────────┘  │
+└───────┼───────────────┼───────────────────┼─────────────┘
+        │               │                   │
+        └───────────────┼───────────────────┘
+                        │ REST API
+        ┌───────────────┴──────────────── ┐
+        │      TestLab Backend Server     │
+        │    (Vert.x + PostgreSQL +       │
+        │         Aerospike)              │
+        └─────────────────────────────────┘
+```
+
+## Use Cases
+
+### Feature Flags
+
+Enable or disable features for specific user segments without deploying new code.
+
+### A/B Testing
+
+Compare two or more variants of a feature to determine which performs better.
+
+### Traffic Control
+
+Control what percentage of incoming requests get assigned to an experiment to manage load or sample traffic.
+
+### Personalization
+
+Show different experiences to different user segments based on attributes.
+
+### Multi-Variate Testing
+
+Test multiple variables simultaneously to find the optimal combination.
+
+## Technology Stack
+
+### Backend (TestLab)
+
+- **Framework**: Vert.x 4.4.9 (reactive, non-blocking)
+- **Language**: Java 17
+- **Database**: PostgreSQL (with partitioning support)
+- **Cache**: Aerospike 6.2.0
+- **Dependency Injection**: Google Guice 7.0.0
+- **HTTP**: Netty with native transport support
+- **Metrics**: Dropwizard Metrics 4.2.23
+- **Resilience**: Resilience4j 2.2.0
+
+### SDKs
+
+- **Android**: Kotlin with Coroutines
+- **iOS**: Swift 5.0+ with async/await
+- **React Native**: TypeScript with native bridges
+
+## Project Structure
+
+```
+ascend/
+├── testlab/                    # Backend server
+│   ├── src/main/java/          # Java source code
+│   ├── src/main/resources/     # Configuration and schemas
+│   └── docs/                   # Documentation
+├── ascend-android-sdk/         # Android SDK
+├── ascend-ios/                 # iOS SDK
+├── ascend-react-native-sdk/    # React Native SDK
+└── ascend-sdk-doc/             # SDK documentation website
+```
+
+## Quick Example
+
+### 1. Server Side: Define an Experiment
+
+```json
+{
+  "experiment_id": "button-color-test",
+  "name": "Button Color Experiment",
+  "status": "LIVE",
+  "type": "A/B",
+  "variants": [
+    {"id": "control", "name": "Blue Button"},
+    {"id": "treatment", "name": "Green Button"}
+  ],
+  "variant_weights": {
+    "control": 50,
+    "treatment": 50
+  },
+  "distribution_strategy": "RANDOM",
+  "exposure": 100
+}
+```
+
+### 2. Client Side: Get Assignment
+
+**Android:**
+```kotlin
+val experimentPlugin = Ascend.getPlugin<DRSPlugin>(Plugins.EXPERIMENTS)
+val buttonColor = experimentPlugin.getExperimentService()
+    .getStringFlag("button_color", "color")
+```
+
+**iOS:**
+```swift
+let experiments = try Ascend.getPlugin(AscendExperiments.self)
+let buttonColor = experiments.getStringValue(for: "button_color", with: "color")
+```
+
+**React Native:**
+```javascript
+import { Ascend } from 'react-native-ascend-react-native-sdk';
+const buttonColor = await Ascend.getStringValue('button_color', 'color');
+```
+
+## What's Next?
+
+- Learn [Why Use Ascend](./02-why-use-ascend.md) over other solutions
+- Follow the [Getting Started Guide](./03-getting-started.md) to set up your first experiment
+- Explore [Usage Patterns](./04-usage.md) for common scenarios
+- Understand the [Development Setup](./05-development-setup.md) to contribute
+- Review the [License Information](./06-licensing.md) for legal details
+
+## Community and Support
+
+Ascend is built with ❤️ by the open-source community. We welcome contributions, bug reports, and feature requests.
+
+- **GitHub**: [Ascend Project](https://github.com/ascend)
+- **Issues**: Report bugs and request features
+- **Discussions**: Ask questions and share ideas
+- **Contributing**: See our contribution guidelines
+
+---
+
+*Making experimentation accessible to everyone, everywhere.*

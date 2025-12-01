@@ -1,0 +1,73 @@
+---
+title: Installation
+description: Installation Guide
+---
+
+---
+sidebar_position: 1
+---
+
+# Installation
+
+## Prerequisites
+
+Before integrating the Ascend iOS SDK, ensure your project meets the following requirements:
+
+- **iOS**: iOS 11.0 or higher
+- **Xcode**: 12.0 or higher
+- **Swift**: 5.0 or higher
+
+## Package Installation
+
+### Using CocoaPods
+
+Add the following to your `Podfile`:
+
+```ruby
+platform :ios, '11.0'
+
+target 'YourApp' do
+  use_frameworks!
+
+  # Ascend Core SDK
+  pod 'AscendSDK', '~> 1.0'
+
+  # Ascend Experiments Plugin
+  pod 'AscendExperiments', '~> 1.0'
+end
+```
+
+Then run:
+
+```bash
+pod install
+```
+
+### Using Swift Package Manager
+
+1. In Xcode, go to **File > Add Packages...**
+2. Enter the package repository URL
+3. Select the **AscendSDK** and **AscendExperiments** packages
+4. Choose the version you want to use
+5. Click **Add Package**
+
+Alternatively, add the dependency to your `Package.swift`:
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/dream11/ascend-ios-sdk.git", from: "1.0.0")
+]
+```
+
+## Import Statements
+
+After installation, import the SDK in your Swift files:
+
+```swift
+import AscendSDK
+import AscendExperiments
+```
+
+## Next Steps
+
+Once installed, proceed to the [Quick Start Guide](./quick-start.md) to begin integrating the SDK into your application.
