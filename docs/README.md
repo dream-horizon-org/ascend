@@ -65,7 +65,7 @@ The documentation includes:
 ## 🎨 Customization
 
 ### Logo
-The site uses Odin logo from `src/assets/odin-logo.png`
+The site uses Ascend logo from `src/assets/ascend-logo.png`
 
 ### Theme
 Custom styles can be modified in `src/styles/custom.css`
@@ -104,5 +104,4 @@ When adding new documentation:
 
 - [Astro Documentation](https://astro.build/)
 - [Starlight Documentation](https://starlight.astro.build/)
-- [Odin CLI Repository](../odin-cli/)
-- [Odin Deployer Repository](../odin-deployer/)
+
