@@ -1,4 +1,4 @@
-# Odin Documentation
+# Ascend Documentation
 
 This directory contains the Astro-based documentation site for Ascend Platform.
 
