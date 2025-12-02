@@ -52,12 +52,7 @@ The documentation includes:
    - Service Sets: Managing multiple services
    - Labels: Organization and filtering
 
-3. **CLI Reference**
-   - Complete command reference with examples
-   - All flags and options documented
-   - Output formats and configuration
-
-4. **How-To Guides**
+3**How-To Guides**
    - Deploy Your First Service
    - Dev to QA Iteration
    - Additional guides for common tasks
