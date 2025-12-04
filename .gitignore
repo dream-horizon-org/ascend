@@ -1,0 +1,18 @@
+**/.astro/*
+**/.vscode/*
+**/.idea/*
+**/.env*
+
+# dependencies
+**/node_modules/*
+**/dist/*
+**/build/*
+**/target/*
+
+# logs
+**/out/*
+**/logs/*
+
+# temp
+**/tmp/*
+**/temp/*
