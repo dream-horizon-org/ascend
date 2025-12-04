@@ -19,73 +19,211 @@ Welcome to the Ascend project! We're excited to have you contribute. This guide 
 
 ## Project Structure
 
-Ascend is organized as a mono-repo containing multiple sub-projects:
+Ascend is organized as a multiple micro services. You can find project structure of each service below.:
+
 
 ```
 ascend/
-├── testlab/                          # Backend server (Java/Vert.x)
+├── testlab/                              # Backend Experiment server (Java/Vert.x)
 │   ├── src/
 │   │   ├── main/
-│   │   │   ├── java/                # Java source code
+│   │   │   ├── java/                      # Java source code
 │   │   │   │   └── com/ascend/testlab/
-│   │   │   │       ├── allocation/  # Assignment logic
-│   │   │   │       ├── client/      # Database & cache clients
-│   │   │   │       ├── config/      # Configuration
-│   │   │   │       ├── dao/         # Data access layer
-│   │   │   │       ├── dto/         # Request/Response objects
-│   │   │   │       ├── entity/      # Domain models
-│   │   │   │       ├── rest/        # REST endpoints
-│   │   │   │       ├── service/     # Business logic
-│   │   │   │       └── verticle/    # Vert.x verticles
+│   │   │   │       ├── allocation/        # Assignment logic
+│   │   │   │       ├── client/            # Database & cache clients
+│   │   │   │       ├── config/            # Configuration
+│   │   │   │       ├── dao/               # Data access layer
+│   │   │   │       ├── dto/               # Request/Response objects
+│   │   │   │       ├── entity/            # Domain models
+│   │   │   │       ├── rest/              # REST endpoints
+│   │   │   │       ├── service/           # Business logic
+│   │   │   │       └── verticle/          # Vert.x verticles
 │   │   │   └── resources/
-│   │   │       ├── config/          # Application configs
-│   │   │       ├── db/              # Database schemas
-│   │   │       └── webroot/         # Static files & Swagger
-│   │   └── test/                    # Unit & integration tests
-│   ├── pom.xml                      # Maven configuration
-│   ├── Dockerfile                   # Docker build
-│   └── docker-compose.yaml          # Local dev setup
+│   │   │       ├── config/                # Application configs
+│   │   │       ├── db/                    # Database schemas
+│   │   │       └── webroot/               # Static files & Swagger
+│   │   └── test/                          # Unit & integration tests
+│   ├── pom.xml                            # Maven configuration
+│   ├── Dockerfile                         # Docker build
+│   └── docker-compose.yaml                # Local dev setup
 │
-├── ascend-android-sdk/              # Android SDK (Kotlin)
-│   ├── ascend-android/              # SDK module
+├── flockr/                                # Backend Audience Engine (Java/Vert.x)
+│   ├── env.docker                         # Docker environment template
+│   ├── Makefile                           # Build & deployment automation
+│   ├── DOCKER.md                          # Docker documentation
+│   ├── README.md
+│   │
+│   ├── flockr-admin/                      # Admin service module
+│   │   ├── pom.xml
+│   │   ├── Dockerfile
 │   │   └── src/
-│   │       ├── main/java/com/       # SDK source code
-│   │       └── test/                # Unit tests
-│   ├── app/                         # Example app
-│   └── build.gradle.kts             # Gradle configuration
+│   │       ├── main/
+│   │       │   ├── java/io/ascend/flockr/admin/
+│   │       │   │   ├── client/            # External clients (Postgres, Flink, WebClient)
+│   │       │   │   ├── config/            # Configuration classes
+│   │       │   │   ├── constants/         # Application constants
+│   │       │   │   ├── domain/            # Domain models
+│   │       │   │   ├── exception/         # Custom exceptions
+│   │       │   │   ├── injection/         # Guice modules and injector
+│   │       │   │   ├── io/                # Request/Response DTOs
+│   │       │   │   ├── provider/          # JAX-RS providers
+│   │       │   │   ├── repository/        # Data access layer (PostgreSQL)
+│   │       │   │   ├── rest/              # REST controllers
+│   │       │   │   ├── service/           # Business logic services
+│   │       │   │   ├── util/              # Utilities
+│   │       │   │   ├── validation/        # Custom validators
+│   │       │   │   ├── verticle/          # Vert.x verticles
+│   │       │   │   └── MainLauncher.java
+│   │       │   └── resources/
+│   │       │       ├── config/            # HOCON configs
+│   │       │       │   ├── application/
+│   │       │       │   ├── postgres/
+│   │       │       │   ├── flink/
+│   │       │       │   ├── kafka-producer/
+│   │       │       │   ├── http-server/
+│   │       │       │   └── swagger/
+│   │       │       ├── db/postgres/       # Database scripts
+│   │       │       │   ├── 01_schema.sql
+│   │       │       │   └── 02_seed.sql
+│   │       │       ├── logback/           # Logging config
+│   │       │       └── webroot/swagger/   # Swagger UI & spec
+│   │       └── test/                      # Unit & integration tests
+│   │
+│   ├── flockr-users/                      # Users service module
+│   │   ├── pom.xml
+│   │   ├── Dockerfile
+│   │   └── src/
+│   │       ├── main/
+│   │       │   ├── java/io/ascend/flockr/users/
+│   │       │   │   ├── client/            # Aerospike client
+│   │       │   │   ├── config/            # Config classes
+│   │       │   │   ├── constants/         # Application constants
+│   │       │   │   ├── controller/        # REST controllers
+│   │       │   │   ├── dto/               # DTOs
+│   │       │   │   ├── guice/             # Guice application context
+│   │       │   │   ├── module/            # Guice modules
+│   │       │   │   ├── service/           # Business logic
+│   │       │   │   ├── verticle/          # Vert.x verticles
+│   │       │   │   ├── AbstractMainApplication.java
+│   │       │   │   └── MainApplication.java
+│   │       │   └── resources/
+│   │       │       ├── config/            # HOCON config
+│   │       │       │   ├── aerospike/
+│   │       │       │   ├── http-server/
+│   │       │       │   └── swagger/
+│   │       │       ├── logback/           # Logging config
+│   │       │       └── webroot/swagger/   # Swagger UI & spec
+│   │       └── test/
+│   │
+│   └── docker/
+│       ├── docker-start.sh                # Start all services
+│       ├── docker-stop.sh                 # Stop all services
+│       ├── docker-status.sh               # Check service status
+│       ├── docker-clean.sh                # Clean containers/volumes
+│       └── config/
+│           ├── flink.conf
+│           └── postgres.conf
 │
-├── ascend-ios/                      # iOS SDK (Swift)
+├── ascend-astra/                          # Gateway service
+│   ├── Dockerfile
+│   ├── docker-compose.yml
+│   ├── plugins/
+│   │   ├── conditional-req-termination/
+│   │   ├── cors/
+│   │   ├── maintenance/
+│   │   ├── rate-limiting-v2/
+│   │   ├── strip-headers/
+│   │   └── swap-header/
+│   ├── ascend-astra/
+│   │   ├── kong.rockspec
+│   │   └── kong.yml
+│   └── scripts/
+│       ├── docker-start.sh
+│       ├── docker-stop.sh
+│       ├── deck-dump.sh
+│       ├── deck-sync.sh
+│       └── setup.sh
+│
+├── ascend-panel/
+│   ├── src/
+│   │   ├── store/                    # Redux store
+│   │   │   ├── store.ts
+│   │   │   ├── hooks.ts
+│   │   │   └── slices/
+│   │   │       └── counterSlice.ts
+│   │   ├── theme/                    # MUI theme
+│   │   │   └── theme.ts
+│   │   ├── App.tsx                   # Root component
+│   │   ├── main.tsx                  # Entry point
+│   │   └── index.css                 # Tailwind global styles
+│
+├── ascend-android-sdk/                # Android SDK (Kotlin)
+│   ├── ascend-android/
+│   │   └── src/
+│   │       ├── main/java/com/        # SDK core
+│   │       └── test/
+│   ├── app/                           # Example app
+│   └── build.gradle.kts
+│
+├── ascend-ios/                        # iOS SDK (Swift)
 │   ├── Sources/
-│   │   ├── Ascend/                  # Core SDK
-│   │   ├── AscendCommon/            # Shared utilities
-│   │   ├── AscendCore/              # Core functionality
-│   │   ├── AscendExperiments/       # Experiments plugin
-│   │   └── PluginSystem/            # Plugin architecture
-│   ├── Package.swift                # Swift Package Manager
-│   └── Ascend.podspec               # CocoaPods spec
+│   │   ├── Ascend/
+│   │   ├── AscendCommon/
+│   │   │   ├── AscendCore/
+│   │   │   ├── AscendExperiments/
+│   │   │   └── PluginSystem/
+│   ├── Package.swift
+│   └── Ascend.podspec
 │
-├── ascend-react-native-sdk/        # React Native SDK (TypeScript)
-│   ├── src/                         # TypeScript source
-│   ├── android/                     # Android native bridge
-│   ├── ios/                         # iOS native bridge
-│   ├── example/                     # Example app
-│   └── package.json                 # NPM configuration
+├── ascend-react-native-sdk/           # React Native SDK
+│   ├── src/
+│   ├── android/
+│   ├── ios/
+│   ├── example/
+│   └── package.json
 │
-└── ascend-sdk-doc/                  # Documentation website (Docusaurus)
-    ├── docs/                        # Markdown docs
-    ├── src/                         # Website source
-    └── docusaurus.config.js         # Docusaurus config
+└── ascend/                           # Documentation website
+    ├── docs/
+        ├── src/
+        │    ├── assets/
+        │    ├── content/
+        │    ├── pages/
+        │    ├── styles/
+        └── astro.config.js           # Astro config
+
 ```
 
 ### Key Components
 
-#### Backend (TestLab)
+#### Testlab (Experiment Backend Service)
 
 - **Allocation**: Variant assignment logic with strategies and filters
 - **DAO**: Database access with query builders
 - **Service**: Business logic layer
 - **REST**: HTTP endpoints with OpenAPI specs
 - **Client**: PostgreSQL and Aerospike integrations
+
+#### Flockr (Audience Backend Service)
+
+- **Admin**: Flockr Admin service
+- **DAO**: Database access with query builders
+- **Service**: Business logic layer
+- **REST**: HTTP endpoints with OpenAPI specs
+- **Client**: PostgreSQL and Aerospike integrations
+
+#### ascend-astra (Gateway Service)
+
+- **Plugins**: Kong plugins
+- **Kong-Proxy**: Main API Gateway
+- **Kong-Admin**: Kong Administration
+- **Kong-Manager**: Kong GUI dashboard
+- **Client**: PostgreSQL and Redis integrations
+
+#### ascend-panel (Frontend Panel Service)
+
+- **App**: Frontend Service
+- **Network**: HTTP client with retry logic
+
 
 #### Android SDK
 
@@ -178,7 +316,7 @@ Ensure you have the following installed:
 #### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/ascend/testlab.git
+git clone https://https://github.com/dream-horizon-org/testlab.git
 cd testlab
 ```
 

@@ -30,9 +30,9 @@ npm run preview
 ## 📝 Documentation Structure
 
 ### GitHub Pages Setup
-- **Site URL**: `https://dream11.github.io/ascend/`
+- **Site URL**: `https://dream-horizon-org.github.io/ascend/`
 - **Base Path**: `/ascend/`
-- **Repository**: `https://dream11.github.io/ascend`
+- **Repository**: `https://dream-horizon-org.github.io/ascend`
 
 ### Documentation Sections
 
@@ -44,6 +44,10 @@ The documentation includes:
 
 2. **Key Concepts**
    - Overview: Introduction to core concepts
+   - Assignment Strategies
+   - Experiment Lifecycle
+   - Architecture Overview
+   - Use cases
 
 3**How-To Guides**
    - Deploy Your First Service
@@ -72,7 +76,7 @@ This site is configured for GitHub Pages deployment:
 2. Build workflow deploys to the `gh-pages` branch
 3. Site published from the `gh-pages` branch
 
-The site will be accessible at: `https://dream11.github.io/ascend/`
+The site will be accessible at: `https://dream-horizon-org.github.io/ascend/`
 
 ## 📚 Content Guidelines
 
@@ -92,4 +96,7 @@ When adding new documentation:
 
 - [Astro Documentation](https://astro.build/)
 - [Starlight Documentation](https://starlight.astro.build/)
+- [Testlab Experiment Backend]()
+- [Flockr Audience Backend]()
+- [Licence] MIT License
 

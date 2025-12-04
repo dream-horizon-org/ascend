@@ -67,7 +67,8 @@ export default defineConfig({
         {
           label: 'How-To Guides',
           items: [
-            'howto/how-to-contribute'
+            'howto/how-to-contribute',
+            'howto/create-first-experiment'
             ],
         },
       ],
