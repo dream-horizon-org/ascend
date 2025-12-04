@@ -44,13 +44,6 @@ The documentation includes:
 
 2. **Key Concepts**
    - Overview: Introduction to core concepts
-   - Environment: Isolated namespaces for deployments
-   - Service: Deployable application units
-   - Component: Building blocks of services
-   - Provisioning: How and where to deploy
-   - Versioning: SNAPSHOT vs CONCRETE versions
-   - Service Sets: Managing multiple services
-   - Labels: Organization and filtering
 
 3**How-To Guides**
    - Deploy Your First Service
