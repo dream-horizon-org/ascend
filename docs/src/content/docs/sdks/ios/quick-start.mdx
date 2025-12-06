@@ -1,0 +1,223 @@
+---
+title: Quick Start
+description: Quick Start for iOS SDK Integration
+---
+
+Get started with the Ascend iOS SDK in just a few steps.
+
+---
+
+## Initialize the SDK
+
+### 1. Configure and Initialize Ascend
+
+In your `AppDelegate.swift` or `SceneDelegate.swift` (or wherever you initialize your app), add the following:
+
+```swift
+import AscendSDK
+import AscendExperiments
+
+func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+
+    // Initialize Ascend SDK with Experiments plugin
+    do {
+        try Ascend.initialize(with: AscendConfig(
+            coreConfig: AscendCoreConfig(
+                // Add your core configuration here
+            ),
+            plugins: [
+                AscendExperiments.shared
+            ]
+        ))
+
+        // Configure the Experiments plugin
+        let experiments = try Ascend.getPlugin(AscendExperiments.self)
+        try experiments.configure(with: AscendExperimentsConfiguration(
+            apiBaseUrl: "http://localhost:8100",
+            apiEndpoint: "/experiments",
+            headers: ["X-Env": "prod"],
+            shouldRefreshOnForeground: true
+        ))
+
+        // Initialize the plugin
+        try experiments.initialize()
+
+    } catch {
+        print("Failed to initialize Ascend: \(error)")
+    }
+
+    return true
+}
+```
+
+---
+
+## Fetch Experiments
+
+### 2. Fetch Experiments from Server
+
+Fetch experiments typically on app start or after user login:
+
+```swift
+do {
+    let experiments = try Ascend.getPlugin(AscendExperiments.self)
+
+    experiments.fetchExperiments(
+        for: [
+            "/api/v1/home": ExperimentVariable(boolValue: true),
+            "/api/v1/paywall": ExperimentVariable(stringValue: "control")
+        ]
+    ) { response, error in
+        if let error = error {
+            print("Failed to fetch experiments: \(error)")
+            return
+        }
+
+        // Experiments fetched successfully
+        // Now you can query variables using the getters below
+        self.useExperimentValues()
+    }
+} catch {
+    print("Error: \(error)")
+}
+```
+
+---
+
+## Read Experiment Values
+
+### 3. Get Type-Safe Experiment Values
+
+Once experiments are fetched, retrieve values using type-safe getters:
+
+```swift
+func useExperimentValues() {
+    do {
+        let experiments = try Ascend.getPlugin(AscendExperiments.self)
+
+        // Get boolean value
+        let enabled = experiments.getBoolValue(for: "/api/v1/home", with: "enabled")
+
+        // Get string value
+        let color = experiments.getStringValue(for: "/api/v1/paywall", with: "color")
+
+        // Get integer value
+        let maxRetries = experiments.getIntValue(for: "/api/v1/network", with: "maxRetries")
+
+        // Get double value
+        let timeout = experiments.getDoubleValue(for: "/api/v1/network", with: "timeout")
+
+        // Get long value
+        let userId = experiments.getLongValue(for: "/api/v1/user", with: "userId")
+
+        // Use the values in your app
+        if enabled {
+            // Feature is enabled
+        }
+
+    } catch {
+        print("Error accessing experiments: \(error)")
+    }
+}
+```
+
+---
+
+## Complete Example
+
+Here's a complete example showing initialization and usage:
+
+```swift
+import UIKit
+import AscendSDK
+import AscendExperiments
+
+class ViewController: UIViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupExperiments()
+    }
+
+    func setupExperiments() {
+        do {
+            // Initialize Ascend (typically done in AppDelegate)
+            try Ascend.initialize(with: AscendConfig(
+                coreConfig: AscendCoreConfig(),
+                plugins: [AscendExperiments.shared]
+            ))
+
+            // Configure and initialize Experiments plugin
+            let experiments = try Ascend.getPlugin(AscendExperiments.self)
+            try experiments.configure(with: AscendExperimentsConfiguration(
+                apiBaseUrl: "https://api.example.com",
+                apiEndpoint: "/experiments",
+                headers: ["X-Env": "prod"],
+                shouldRefreshOnForeground: true
+            ))
+            try experiments.initialize()
+
+            // Fetch experiments
+            experiments.fetchExperiments(
+                for: [
+                    "/api/v1/home": ExperimentVariable(boolValue: true),
+                    "/api/v1/paywall": ExperimentVariable(stringValue: "control")
+                ]
+            ) { [weak self] response, error in
+                guard let self = self else { return }
+
+                if let error = error {
+                    print("Failed to fetch experiments: \(error)")
+                    // App can still use default values
+                }
+
+                // Read experiment values
+                self.updateUIWithExperiments()
+            }
+
+        } catch {
+            print("Initialization error: \(error)")
+        }
+    }
+
+    func updateUIWithExperiments() {
+        do {
+            let experiments = try Ascend.getPlugin(AscendExperiments.self)
+
+            let isFeatureEnabled = experiments.getBoolValue(
+                for: "/api/v1/home",
+                with: "enabled"
+            )
+
+            let buttonColor = experiments.getStringValue(
+                for: "/api/v1/paywall",
+                with: "color"
+            )
+
+            // Update UI based on experiment values
+            DispatchQueue.main.async {
+                // Use isFeatureEnabled and buttonColor to configure your UI
+            }
+
+        } catch {
+            print("Error reading experiments: \(error)")
+        }
+    }
+}
+```
+
+---
+
+## Best Practices
+
+1. **Always access the plugin via `Ascend.getPlugin`**: Use `try Ascend.getPlugin(AscendExperiments.self)` after initialization
+2. **Call configure before initialize**: For deterministic startup behavior, call `configure(with:)` before `initialize()`
+3. **Provide meaningful defaults**: When calling `fetchExperiments(for:)`, provide default `ExperimentVariable` values so your app works even without network
+4. **Handle errors gracefully**: The SDK will fall back to default values, but always handle errors appropriately
+5. **Fetch after login**: After user login, call `fetchExperiments` again to ensure user-targeted variants are loaded
+
+---
+
+## Next Steps
+
+For detailed API documentation, see the [API Reference](./api.md).

@@ -1,0 +1,175 @@
+---
+title: Key Concepts
+description: Understanding Ascend's core concepts and terminology
+---
+
+## What is Ascend?
+
+Ascend is a comprehensive experimentation platform that consists of:
+
+- **Backend Experiment Server (TestLab)**: A high-performance Java-based server built on Vert.x that manages experiments, handles variant assignments, and processes experiment data.
+- **Backend Audience Server (Flockr)**: A high-performance Java-based server built on Vert.x that manages experiments, handles variant assignments, and processes experiment data.
+- **Admin Panel**: Manage your experiment's lifecycle, audience's lifecycle , SDK's API Key.
+- **Cross-Platform SDKs**: SDKs for Android, iOS, and React Native that seamlessly integrate with your applications.
+- **Flexible Architecture**: Plugin-based architecture that allows extensibility and customization.
+
+---
+
+## Core Concepts
+
+### Experiments
+
+An **experiment** in Ascend is a controlled test where you compare different variants (versions) of a feature to determine which performs better. Each experiment includes:
+
+- **Variants**: Different versions of your feature to test (e.g., control, treatment).
+- **Allocation Strategy**: How users are assigned to variants (random(default), round-robin).
+- **Target Rules**: Conditions that determine which users are eligible for the experiment.
+- **Audience**: User segments for targeted experimentation. Create csv based audience.
+
+---
+
+### Allocation Strategies
+
+Ascend supports multiple allocation strategies:
+
+- **Stratified Allocation**: Users are assigned based on their audience segments.
+- **Audience-Based Allocation**: Users are assigned based on audience membership with custom variant weights per audience.
+
+---
+
+### Experiment Lifecycle
+
+1. **Draft**: Experiment is being configured (Coming soon)
+2. **Live**: Experiment is actively running
+3. **Paused**: Experiment is temporarily stopped
+4. **Concluded**: Experiment has finished and winning variant declared
+5. **Terminated**: Experiment will no longer being served
+
+---
+
+## Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    Client Applications                  │
+│  ┌──────────┐    ┌──────────┐    ┌──────────────────┐   │
+│  │  Android │    │   iOS    │    │  React Native    │   │
+│  │   SDK    │    │   SDK    │    │       SDK        │   │
+│  └────┬─────┘    └────┬─────┘    └────────┬─────────┘   │
+└───────┼───────────────┼───────────────────┼─────────────┘
+        │               │                   │
+        └───────────────┼───────────────────┘
+                        │ REST API
+        ┌───────────────┴────────────────────────┐
+        │ Backend Server(testlab+flockr)         │
+        │    (Vert.x + PostgreSQL +              │
+        │         Aerospike)                     │
+        └────────────────────────────────────────┘
+```
+
+---
+
+## Core Capabilities
+
+- **Feature Flags** :
+Enable or disable specific product features for selected app attributes without deploying new code.
+
+- **A/B Testing** :
+Compare multiple variants of a feature to evaluate performance and identify the best-performing option.
+
+- **Audience Targeting** :
+Apply allocations based on user attributes and the audience segments the user belongs to, ensuring precise and personalized feature delivery.
+
+- **Traffic Control** :
+Regulate what percentage of incoming requests are assigned to experiments to manage system load or sample traffic intelligently.
+
+- **Multivariate Testing** :
+Test multiple variables at once to determine the optimal combination of feature variations and interactions.
+
+---
+
+## Quick Example
+
+### 1. Server Side: Define an Experiment
+
+```json
+{
+  "experiment_key": "button-color-test",
+  "name": "Button Color Experiment",
+  "status": "LIVE",
+  "type": "A/B",
+  "variants": [
+   "control": {
+         "display_name": "Control Group",
+         "variables": [
+           {
+             "key": "button_color",
+             "value": "blue",
+             "data_type": "STRING"
+           }
+         ]
+       },
+       "variant1": {
+         "display_name": "Test Variant 1",
+         "variables": [
+           {
+             "key": "button_color",
+             "value": "green",
+             "data_type": "STRING"
+           }
+         ]
+       }
+  ],
+  "variant_weights": {
+    "control": 50,
+    "treatment": 50
+  },
+  "distribution_strategy": "RANDOM",
+  "exposure": 100
+}
+```
+
+### 2. Client Side: Get Assignment
+
+**Android:**
+```kotlin
+val experimentPlugin = Ascend.getPlugin<DRSPlugin>(Plugins.EXPERIMENTS)
+val buttonColor = experimentPlugin.getExperimentService()
+    .getStringFlag("button_color", "color")
+```
+
+**iOS:**
+```swift
+let experiments = try Ascend.getPlugin(AscendExperiments.self)
+let buttonColor = experiments.getStringValue(for: "button_color", with: "color")
+```
+
+**React Native:**
+```javascript
+import { Ascend } from 'react-native-ascend-react-native-sdk';
+const buttonColor = await Ascend.getStringValue('button_color', 'color');
+```
+
+---
+
+## What's Next?
+
+- Learn [Why Use Ascend](../../introduction/why-use-ascend) over other solutions
+- Follow the [Getting Started Guide](../../introduction/getting-started/) to set up your first experiment
+- Understand the [Development Setup](../../howto/how-to-contribute) to contribute
+- Review the [License Information](https://github.com/dream-horizon-org/ascend/blob/main/LICENSE) for legal details
+
+---
+
+## Community and Support
+
+Ascend is built with ❤️ by the open-source community. We welcome contributions, bug reports, and feature requests.
+
+- **GitHub**: [Ascend Project](https://github.com/dream-horizon-org/ascend)
+- **Issues**: [Report bugs and request features](https://github.com/dream-horizon-org/ascend/issues)
+- **Discussions**: Use Github discussion
+- **Contributing**: See our Contribution Guidelines.
+
+---
+
+*Making experimentation accessible to everyone, everywhere.*

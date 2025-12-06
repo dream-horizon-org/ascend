@@ -1,0 +1,938 @@
+---
+title: Development Setup & Contributing
+description: Development Setup & Contributing
+---
+Welcome to the Ascend project! We're excited to have you contribute. This guide will help you set up your development environment and understand our contribution workflow.
+
+## Table of Contents
+
+1. [Project Structure](#project-structure)
+2. [Development Environment Setup](#development-environment-setup)
+3. [Building from Source](#building-from-source)
+4. [Running Tests](#running-tests)
+5. [Code Style and Standards](#code-style-and-standards)
+6. [Contributing Guidelines](#contributing-guidelines)
+7. [Pull Request Process](#pull-request-process)
+8. [Community Guidelines](#community-guidelines)
+
+---
+
+## Project Structure
+
+Ascend is organized as a multiple micro services. You can find project structure of each service below.:
+
+
+```
+ascend/
+├── testlab/                              # Backend Experiment server (Java/Vert.x)
+│   ├── src/
+│   │   ├── main/
+│   │   │   ├── java/                      # Java source code
+│   │   │   │   └── com/ascend/testlab/
+│   │   │   │       ├── allocation/        # Assignment logic
+│   │   │   │       ├── client/            # Database & cache clients
+│   │   │   │       ├── config/            # Configuration
+│   │   │   │       ├── dao/               # Data access layer
+│   │   │   │       ├── dto/               # Request/Response objects
+│   │   │   │       ├── entity/            # Domain models
+│   │   │   │       ├── rest/              # REST endpoints
+│   │   │   │       ├── service/           # Business logic
+│   │   │   │       └── verticle/          # Vert.x verticles
+│   │   │   └── resources/
+│   │   │       ├── config/                # Application configs
+│   │   │       ├── db/                    # Database schemas
+│   │   │       └── webroot/               # Static files & Swagger
+│   │   └── test/                          # Unit & integration tests
+│   ├── pom.xml                            # Maven configuration
+│   ├── Dockerfile                         # Docker build
+│   └── docker-compose.yaml                # Local dev setup
+│
+├── flockr/                                # Backend Audience Engine (Java/Vert.x)
+│   ├── env.docker                         # Docker environment template
+│   ├── Makefile                           # Build & deployment automation
+│   ├── DOCKER.md                          # Docker documentation
+│   ├── README.md
+│   │
+│   ├── flockr-admin/                      # Admin service module
+│   │   ├── pom.xml
+│   │   ├── Dockerfile
+│   │   └── src/
+│   │       ├── main/
+│   │       │   ├── java/io/ascend/flockr/admin/
+│   │       │   │   ├── client/            # External clients (Postgres, Flink, WebClient)
+│   │       │   │   ├── config/            # Configuration classes
+│   │       │   │   ├── constants/         # Application constants
+│   │       │   │   ├── domain/            # Domain models
+│   │       │   │   ├── exception/         # Custom exceptions
+│   │       │   │   ├── injection/         # Guice modules and injector
+│   │       │   │   ├── io/                # Request/Response DTOs
+│   │       │   │   ├── provider/          # JAX-RS providers
+│   │       │   │   ├── repository/        # Data access layer (PostgreSQL)
+│   │       │   │   ├── rest/              # REST controllers
+│   │       │   │   ├── service/           # Business logic services
+│   │       │   │   ├── util/              # Utilities
+│   │       │   │   ├── validation/        # Custom validators
+│   │       │   │   ├── verticle/          # Vert.x verticles
+│   │       │   │   └── MainLauncher.java
+│   │       │   └── resources/
+│   │       │       ├── config/            # HOCON configs
+│   │       │       │   ├── application/
+│   │       │       │   ├── postgres/
+│   │       │       │   ├── flink/
+│   │       │       │   ├── kafka-producer/
+│   │       │       │   ├── http-server/
+│   │       │       │   └── swagger/
+│   │       │       ├── db/postgres/       # Database scripts
+│   │       │       │   ├── 01_schema.sql
+│   │       │       │   └── 02_seed.sql
+│   │       │       ├── logback/           # Logging config
+│   │       │       └── webroot/swagger/   # Swagger UI & spec
+│   │       └── test/                      # Unit & integration tests
+│   │
+│   ├── flockr-users/                      # Users service module
+│   │   ├── pom.xml
+│   │   ├── Dockerfile
+│   │   └── src/
+│   │       ├── main/
+│   │       │   ├── java/io/ascend/flockr/users/
+│   │       │   │   ├── client/            # Aerospike client
+│   │       │   │   ├── config/            # Config classes
+│   │       │   │   ├── constants/         # Application constants
+│   │       │   │   ├── controller/        # REST controllers
+│   │       │   │   ├── dto/               # DTOs
+│   │       │   │   ├── guice/             # Guice application context
+│   │       │   │   ├── module/            # Guice modules
+│   │       │   │   ├── service/           # Business logic
+│   │       │   │   ├── verticle/          # Vert.x verticles
+│   │       │   │   ├── AbstractMainApplication.java
+│   │       │   │   └── MainApplication.java
+│   │       │   └── resources/
+│   │       │       ├── config/            # HOCON config
+│   │       │       │   ├── aerospike/
+│   │       │       │   ├── http-server/
+│   │       │       │   └── swagger/
+│   │       │       ├── logback/           # Logging config
+│   │       │       └── webroot/swagger/   # Swagger UI & spec
+│   │       └── test/
+│   │
+│   └── docker/
+│       ├── docker-start.sh                # Start all services
+│       ├── docker-stop.sh                 # Stop all services
+│       ├── docker-status.sh               # Check service status
+│       ├── docker-clean.sh                # Clean containers/volumes
+│       └── config/
+│           ├── flink.conf
+│           └── postgres.conf
+│
+├── ascend-astra/                          # Gateway service
+│   ├── Dockerfile
+│   ├── docker-compose.yml
+│   ├── plugins/
+│   │   ├── conditional-req-termination/
+│   │   ├── cors/
+│   │   ├── maintenance/
+│   │   ├── rate-limiting-v2/
+│   │   ├── strip-headers/
+│   │   └── swap-header/
+│   ├── ascend-astra/
+│   │   ├── kong.rockspec
+│   │   └── kong.yml
+│   └── scripts/
+│       ├── docker-start.sh
+│       ├── docker-stop.sh
+│       ├── deck-dump.sh
+│       ├── deck-sync.sh
+│       └── setup.sh
+│
+├── ascend-panel/
+│   ├── src/
+│   │   ├── store/                    # Redux store
+│   │   │   ├── store.ts
+│   │   │   ├── hooks.ts
+│   │   │   └── slices/
+│   │   │       └── counterSlice.ts
+│   │   ├── theme/                    # MUI theme
+│   │   │   └── theme.ts
+│   │   ├── App.tsx                   # Root component
+│   │   ├── main.tsx                  # Entry point
+│   │   └── index.css                 # Tailwind global styles
+│
+├── ascend-android-sdk/                # Android SDK (Kotlin)
+│   ├── ascend-android/
+│   │   └── src/
+│   │       ├── main/java/com/        # SDK core
+│   │       └── test/
+│   ├── app/                           # Example app
+│   └── build.gradle.kts
+│
+├── ascend-ios/                        # iOS SDK (Swift)
+│   ├── Sources/
+│   │   ├── Ascend/
+│   │   ├── AscendCommon/
+│   │   │   ├── AscendCore/
+│   │   │   ├── AscendExperiments/
+│   │   │   └── PluginSystem/
+│   ├── Package.swift
+│   └── Ascend.podspec
+│
+├── ascend-react-native-sdk/           # React Native SDK
+│   ├── src/
+│   ├── android/
+│   ├── ios/
+│   ├── example/
+│   └── package.json
+│
+└── ascend/                           # Documentation website
+    ├── docs/
+        ├── src/
+        │    ├── assets/
+        │    ├── content/
+        │    ├── pages/
+        │    ├── styles/
+        └── astro.config.js           # Astro config
+
+```
+
+### Key Components
+
+#### Testlab (Experiment Backend Service)
+
+- **Allocation**: Variant assignment logic with strategies and filters
+- **DAO**: Database access with query builders
+- **Service**: Business logic layer
+- **REST**: HTTP endpoints with OpenAPI specs
+- **Client**: PostgreSQL and Aerospike integrations
+
+#### Flockr (Audience Backend Service)
+
+- **Admin**: Flockr Admin service
+- **DAO**: Database access with query builders
+- **Service**: Business logic layer
+- **REST**: HTTP endpoints with OpenAPI specs
+- **Client**: PostgreSQL and Aerospike integrations
+
+#### ascend-astra (Gateway Service)
+
+- **Plugins**: Kong plugins
+- **Kong-Proxy**: Main API Gateway
+- **Kong-Admin**: Kong Administration
+- **Kong-Manager**: Kong GUI dashboard
+- **Client**: PostgreSQL and Redis integrations
+
+#### ascend-panel (Frontend Panel Service)
+
+- **App**: Frontend Service
+- **Network**: HTTP client with retry logic
+
+
+#### Android SDK
+
+- **Plugins**: Experiments and future features
+- **Core**: User management, device info, configuration
+- **Network**: HTTP client with retry logic
+- **Storage**: Local caching and persistence
+
+#### iOS SDK
+
+- **Plugin Architecture**: Modular, extensible design
+- **AscendCore**: Configuration, user management, device info
+- **AscendExperiments**: A/B testing functionality
+- **AscendCommon**: Shared utilities (logging, networking, storage)
+
+#### React Native SDK
+
+- **TypeScript Layer**: JavaScript API
+- **Native Bridges**: Android and iOS native modules
+- **Type Definitions**: Full TypeScript support
+
+---
+
+## Development Environment Setup
+
+### Prerequisites
+
+Ensure you have the following installed:
+
+#### For Backend Development (TestLab)
+
+- **Java JDK 17** ([Download](https://adoptium.net/))
+  ```bash
+  java -version  # Should show 17.x
+  ```
+
+- **Apache Maven 3.6+** ([Download](https://maven.apache.org/download.cgi))
+  ```bash
+  mvn -version
+  ```
+
+- **PostgreSQL 12+** ([Download](https://www.postgresql.org/download/))
+  ```bash
+  psql --version
+  ```
+
+- **Aerospike** (optional, for caching) ([Download](https://aerospike.com/download/))
+
+- **Docker & Docker Compose** ([Download](https://www.docker.com/get-started))
+  ```bash
+  docker --version
+  docker-compose --version
+  ```
+
+#### For Android SDK Development
+
+- **Android Studio** (latest stable) ([Download](https://developer.android.com/studio))
+- **JDK 17**
+- **Android SDK** (API 24+)
+
+#### For iOS SDK Development
+
+- **macOS** (required for iOS development)
+- **Xcode 12+** ([Download](https://developer.apple.com/xcode/))
+- **Swift 5.0+**
+
+#### For React Native SDK Development
+
+- **Node.js 16+** ([Download](https://nodejs.org/))
+  ```bash
+  node --version
+  ```
+
+- **Yarn** ([Download](https://yarnpkg.com/))
+  ```bash
+  yarn --version
+  ```
+
+- **React Native CLI**
+  ```bash
+  npm install -g react-native-cli
+  ```
+
+---
+
+## Building from Source
+
+### Backend Server (TestLab)
+
+#### 1. Clone the Repository
+
+```bash
+git clone https://https://github.com/dream-horizon-org/testlab.git
+cd testlab
+```
+
+#### 2. Set Up PostgreSQL
+
+```bash
+# Create database
+createdb experiment
+
+# Run schema
+psql -d experiment -f src/main/resources/db/postgresql/schema.sql
+```
+
+#### 3. Configure Environment
+
+Create a `.env` file or export variables:
+
+```bash
+export PG_USER="postgres"
+export PG_PASSWORD="your_password"
+export ENV="local"
+```
+
+#### 4. Build the Project
+
+```bash
+# Clean build
+mvn clean install
+
+# Skip tests (faster)
+mvn clean install -DskipTests
+
+# Build fat JAR
+mvn clean package
+```
+
+Output: `target/testlab/testlab-1.0-fat.jar`
+
+#### 5. Run Locally
+
+**Option A: Using Maven**
+
+```bash
+mvn exec:java
+```
+
+**Option B: Using JAR**
+
+```bash
+cd target/testlab
+PG_USER=postgres PG_PASSWORD=your_password \
+java -Dapp.environment=local \
+     -Dlogback.configurationFile=./resources/logback/logback.xml \
+     -jar testlab-1.0-fat.jar
+```
+
+**Option C: Using IntelliJ IDEA**
+
+1. Open `testlab` project in IntelliJ
+2. Create Run Configuration:
+    - Type: Application
+    - Main class: `com.ascend.testlab.MainLauncher`
+    - VM options: `-Dapp.environment=local -Dlogback.configurationFile=logback/logback-local.xml`
+    - Program arguments: `run verticle.com.ascend.testlab.MainVerticle`
+    - Environment variables: `ENV=local;PG_USER=postgres;PG_PASSWORD=your_password`
+
+**Option D: Using Docker Compose**
+
+```bash
+docker-compose up -d
+```
+
+#### 6. Verify
+
+```bash
+curl http://localhost:8080/v1/health
+```
+
+### Android SDK
+
+#### 1. Clone Repository
+
+```bash
+git clone https://github.com/ascend/ascend-android-sdk.git
+cd ascend-android-sdk
+```
+
+#### 2. Open in Android Studio
+
+- File → Open → Select `ascend-android-sdk` directory
+- Wait for Gradle sync to complete
+
+#### 3. Build
+
+```bash
+# Command line
+./gradlew build
+
+# Or use Android Studio: Build → Make Project
+```
+
+#### 4. Run Example App
+
+```bash
+./gradlew :app:installDebug
+
+# Or use Android Studio: Run → Run 'app'
+```
+
+### iOS SDK
+
+#### 1. Clone Repository
+
+```bash
+git clone https://github.com/ascend/ascend-ios.git
+cd ascend-ios
+```
+
+#### 2. Build with Swift Package Manager
+
+```bash
+swift build
+```
+
+#### 3. Run Tests
+
+```bash
+swift test
+```
+
+#### 4. Open in Xcode
+
+```bash
+open Package.swift
+```
+
+#### 5. Build Framework (Optional)
+
+```bash
+./build-framework.sh
+```
+
+### React Native SDK
+
+#### 1. Clone Repository
+
+```bash
+git clone https://github.com/ascend/ascend-react-native-sdk.git
+cd ascend-react-native-sdk
+```
+
+#### 2. Install Dependencies
+
+```bash
+yarn install
+```
+
+#### 3. Build TypeScript
+
+```bash
+yarn prepare
+```
+
+#### 4. Run Example App
+
+**iOS:**
+```bash
+cd example
+yarn install
+cd ios && pod install && cd ..
+yarn ios
+```
+
+**Android:**
+```bash
+cd example
+yarn install
+yarn android
+```
+
+---
+
+## Running Tests
+
+### Backend Tests
+
+```bash
+# Run all tests
+mvn test
+
+# Run integration tests
+mvn verify
+
+# Run specific test
+mvn test -Dtest=AllocationServiceTest
+
+# Generate coverage report
+mvn jacoco:report
+# Report at: target/site/jacoco/index.html
+```
+
+### Android SDK Tests
+
+```bash
+# Unit tests
+./gradlew test
+
+# Instrumented tests (requires emulator/device)
+./gradlew connectedAndroidTest
+
+# With coverage
+./gradlew jacocoTestReport
+```
+
+### iOS SDK Tests
+
+```bash
+# All tests
+swift test
+
+# Specific test
+swift test --filter AscendExperimentsTests
+```
+
+### React Native SDK Tests
+
+```bash
+# Unit tests
+yarn test
+
+# Type checking
+yarn typecheck
+
+# Linting
+yarn lint
+```
+
+---
+
+## Code Style and Standards
+
+### Backend (Java)
+
+We use [Google Java Format](https://github.com/google/google-java-format) with Maven plugin.
+
+**Auto-format code:**
+
+```bash
+mvn com.spotify.fmt:fmt-maven-plugin:format
+```
+
+**Check formatting:**
+
+```bash
+mvn com.spotify.fmt:fmt-maven-plugin:check
+```
+
+**Style Guidelines:**
+
+- 100 character line limit
+- 2 spaces for indentation
+- Use `@Override` annotations
+- Prefer `final` for variables when possible
+- Use meaningful variable names
+
+### Android (Kotlin)
+
+Follow [Kotlin Coding Conventions](https://kotlinlang.org/docs/coding-conventions.html).
+
+**Key points:**
+
+- 4 spaces for indentation
+- Use Kotlin idioms (data classes, extension functions)
+- Prefer `val` over `var`
+- Use meaningful names
+- Add KDoc comments for public APIs
+
+### iOS (Swift)
+
+Follow [Swift API Design Guidelines](https://swift.org/documentation/api-design-guidelines/).
+
+**Key points:**
+
+- 4 spaces for indentation
+- Use clear, expressive names
+- Prefer value types (structs) over reference types
+- Use `guard` for early returns
+- Add documentation comments for public APIs
+
+### React Native (TypeScript)
+
+Follow [Airbnb JavaScript Style Guide](https://github.com/airbnb/javascript).
+
+**Auto-format:**
+
+```bash
+yarn lint --fix
+```
+
+**Key points:**
+
+- 2 spaces for indentation
+- Use TypeScript strict mode
+- Prefer `const` over `let`
+- Use arrow functions
+- Add JSDoc comments for public APIs
+
+---
+
+## Contributing Guidelines
+
+### Before You Start
+
+1. **Check existing issues**: Avoid duplicate work
+2. **Discuss large changes**: Open an issue first for major features
+3. **Read the docs**: Understand the architecture and patterns
+
+### Contribution Workflow
+
+#### 1. Fork the Repository
+
+```bash
+# Fork on GitHub, then clone your fork
+git clone https://github.com/YOUR_USERNAME/testlab.git
+cd testlab
+
+# Add upstream remote
+git remote add upstream https://github.com/ascend/testlab.git
+```
+
+#### 2. Create a Branch
+
+```bash
+git checkout -b feature/your-feature-name
+# or
+git checkout -b fix/bug-description
+```
+
+**Branch naming conventions:**
+
+- `feature/` - New features
+- `fix/` - Bug fixes
+- `docs/` - Documentation updates
+- `refactor/` - Code refactoring
+- `test/` - Test additions/fixes
+
+#### 3. Make Your Changes
+
+- Write clear, concise code
+- Follow code style guidelines
+- Add tests for new functionality
+- Update documentation
+
+#### 4. Commit Your Changes
+
+Follow [Conventional Commits](https://www.conventionalcommits.org/):
+
+```bash
+git commit -m "feat: add support for weighted cohorts"
+git commit -m "fix: resolve race condition in allocation"
+git commit -m "docs: update API documentation"
+git commit -m "test: add tests for variant selection"
+```
+
+**Commit message format:**
+
+```
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+**Types:**
+- `feat`: New feature
+- `fix`: Bug fix
+- `docs`: Documentation
+- `style`: Formatting changes
+- `refactor`: Code restructuring
+- `test`: Adding/updating tests
+- `chore`: Maintenance tasks
+
+#### 5. Push to Your Fork
+
+```bash
+git push origin feature/your-feature-name
+```
+
+#### 6. Open a Pull Request
+
+Go to GitHub and create a Pull Request from your fork to the main repository.
+
+---
+
+## Pull Request Process
+
+### PR Checklist
+
+Before submitting, ensure:
+
+- ✅ Code follows style guidelines
+- ✅ All tests pass
+- ✅ New tests added for new functionality
+- ✅ Documentation updated
+- ✅ No unnecessary dependencies added
+- ✅ Commit messages follow conventions
+- ✅ PR description is clear and complete
+
+### PR Template
+
+```markdown
+## Description
+Brief description of changes
+
+## Type of Change
+- [ ] Bug fix
+- [ ] New feature
+- [ ] Breaking change
+- [ ] Documentation update
+
+## Testing
+Describe how you tested your changes
+
+## Checklist
+- [ ] Code follows style guidelines
+- [ ] Tests pass locally
+- [ ] Added tests for new features
+- [ ] Updated documentation
+- [ ] No breaking changes (or documented)
+
+## Related Issues
+Closes #123
+```
+
+### Review Process
+
+1. **Automated Checks**: CI/CD runs tests and linters
+2. **Code Review**: Maintainers review your code
+3. **Discussion**: Address feedback and make changes
+4. **Approval**: Maintainer approves the PR
+5. **Merge**: PR is merged into main branch
+
+### Tips for Faster Reviews
+
+- Keep PRs small and focused
+- Write clear descriptions
+- Respond promptly to feedback
+- Be open to suggestions
+- Rebase on latest main if needed
+
+---
+
+## Community Guidelines
+
+### Code of Conduct
+
+We are committed to providing a welcoming and inclusive environment. Please:
+
+- **Be respectful**: Treat everyone with respect and kindness
+- **Be inclusive**: Welcome newcomers and diverse perspectives
+- **Be collaborative**: Work together towards common goals
+- **Be constructive**: Provide helpful feedback
+- **Be professional**: Keep discussions focused and productive
+
+### Communication Channels
+
+- **GitHub Issues**: Bug reports and feature requests
+- **GitHub Discussions**: Questions and community discussions
+- **Pull Requests**: Code contributions
+- **Security Issues**: Email security@ascend-project.org
+
+### Getting Help
+
+- **Documentation**: Check our comprehensive docs first
+- **Discussions**: Ask questions in GitHub Discussions
+- **Issues**: Report bugs with detailed reproduction steps
+- **Community**: Connect with other contributors
+
+---
+
+## Development Tips
+
+### Backend Development
+
+#### Hot Reload
+
+For faster iteration, use Vert.x hot reload:
+
+```bash
+mvn compile vertx:run
+```
+
+#### Database Migrations
+
+When changing schema:
+
+1. Update `schema.sql`
+2. Create migration script (if needed)
+3. Test on fresh database
+4. Document changes
+
+#### Debugging
+
+Enable debug logging:
+
+```bash
+java -Dlogback.configurationFile=logback-debug.xml -jar testlab-1.0-fat.jar
+```
+
+### SDK Development
+
+#### Local SDK Testing
+
+**Android:**
+```bash
+# Publish to local Maven
+./gradlew publishToMavenLocal
+
+# In your app's build.gradle
+repositories {
+    mavenLocal()
+}
+```
+
+**iOS:**
+```swift
+// Use local package in Xcode
+// File → Add Package Dependencies → Add Local...
+```
+
+**React Native:**
+```bash
+# Link local package
+cd example
+yarn link ../
+```
+
+### Common Issues
+
+#### Build Failures
+
+**Problem**: Maven build fails with missing dependencies
+
+**Solution**:
+```bash
+mvn clean install -U  # Force update dependencies
+```
+
+**Problem**: Gradle sync fails in Android Studio
+
+**Solution**:
+```bash
+./gradlew --refresh-dependencies
+```
+
+#### Test Failures
+
+**Problem**: Database tests fail
+
+**Solution**: Ensure PostgreSQL is running and schema is initialized
+
+**Problem**: Integration tests timeout
+
+**Solution**: Increase timeout in test configuration
+
+---
+
+## Release Process
+
+### Versioning
+
+We follow [Semantic Versioning](https://semver.org/):
+
+- **Major (X.0.0)**: Breaking changes
+- **Minor (x.X.0)**: New features (backward compatible)
+- **Patch (x.x.X)**: Bug fixes
+
+### Creating a Release
+
+1. Update version numbers
+2. Update CHANGELOG.md
+3. Create Git tag
+4. Build release artifacts
+5. Publish to package repositories
+6. Create GitHub release
+
+---
+
+## Additional Resources
+
+### Learning Resources
+
+- **Vert.x**: https://vertx.io/docs/
+- **Kotlin Coroutines**: https://kotlinlang.org/docs/coroutines-overview.html
+- **Swift Concurrency**: https://docs.swift.org/swift-book/LanguageGuide/Concurrency.html
+- **React Native**: https://reactnative.dev/docs/getting-started
+
+### Tools
+
+- **IntelliJ IDEA**: https://www.jetbrains.com/idea/
+- **Android Studio**: https://developer.android.com/studio
+- **Xcode**: https://developer.apple.com/xcode/
+- **Visual Studio Code**: https://code.visualstudio.com/
+
+---
+
+## Thank You!
+
+Thank you for contributing to Ascend! Your contributions help make experimentation accessible to everyone.
+
+**Questions?** Feel free to ask in GitHub Discussions or open an issue.
+
+**Happy coding! 🚀**
+
+---
+
+*Built with ❤️ by the Ascend community*
+

@@ -1,0 +1,124 @@
+---
+title: Getting Started
+description: Install Ascend platform in under 10 minutes
+---
+
+Get up and running with Ascend on a docker. This guide will walk you through installation, configuration, and creating your first experiment.
+
+---
+
+## Prerequisites
+
+---
+
+### Hardware Requirements   
+| Resource | Minimum |
+|----------|---------|
+| RAM | 8 GB     |
+| CPU| 4 cores  |
+| Disk Space | 20 GB free |
+| OS | macOS 11+, Linux (Ubuntu 20.04+) |
+
+
+### Software Requirements
+
+The following tools must be installed on your system:
+
+| Tool | Minimum Version | Installation |
+|------|----------------|--------------|
+| Docker | v20.10+ | [Install Guide](https://docs.docker.com/get-docker/) |
+| curl | v7.68+ | Pre-installed on most systems |
+
+:::note
+The installation script will automatically check for these prerequisites and guide you through installing any missing tools.
+:::
+
+---
+
+## Quick Start: One-Command Installation
+
+Get Ascend running on a docker in under 10 minutes:
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/dream-horizon-org/ascend/main/startup.sh)
+```
+
+### What This Does
+
+The installation script automatically:
+
+1. ✅ Checks and installs prerequisites (Docker etc.)
+2. ✅ Clones the Ascend repository
+3. ✅ Deploys Ascend with all components
+4. ✅ Open http://localhost:9000 in browser
+
+
+**Expected Duration**: 7-10 minutes (depending on internet speed and hardware)
+
+---
+
+### Installation Output
+
+You'll see output similar to:
+
+```bash
+# bash startup.sh
+  🚀 Installing Ascend platform to /Users/mac-user/.ascend...
+
+  📦 Installing requirements...
+
+  📁 Setting up installation directory...
+
+  📥 Checking out repositories...
+
+  🐳 Starting dependent services...
+  Starting services for testlab...
+  ✅ Started testlab services
+  Starting services for flockr...
+  ✅ Started flockr services
+  Starting services for ascend-panel...
+  ✅ Started ascend-panel services
+
+  ✅ Ascend platform installed successfully in /Users/mac-user/.ascend
+  🌐 Ascend started at http://localhost:9000
+
+```
+
+Now that Ascend is installed and configured, you can create your first experiment:
+
+For a complete walkthrough, see:
+- [Create Your First Experiment](/ascend/howto/create-first-experiment) - Step-by-step tutorial
+- [Key Concepts](/ascend/concepts/overview) - Understand experiment, assignments, variant, cohorts etc.
+
+---
+
+### Uninstallation
+
+To remove Ascend from your cluster:
+
+```bash
+# Using the uninstall script
+cd ascend
+./remove.sh
+```
+
+---
+
+## Next Steps
+
+:::tip[🎉 Success!]
+Congratulations! You've successfully installed Ascend and [create your first experiment](/ascend/howto/create-first-experiment).
+
+**Next steps:**
+- [Configure SDK](/ascend/sdks/kotlin/installation) - Complete walkthrough
+- [Key Concepts](/ascend/concepts/overview) - Understand key concepts experiments, audience, assignment etc.
+- [How-To Guides](/ascend/howto/how-to-contribute) - How to Contribute to Ascend
+:::
+
+---
+
+## Additional Resources
+
+- **GitHub Repository**: https://github.com/dream-horizon-org/ascend
+- **Issue Tracker**: https://github.com/dream-horizon-org/ascend/issues
+- **License**: [MIT License](https://github.com/dream-horizon-org/ascend/blob/main/LICENSE)
