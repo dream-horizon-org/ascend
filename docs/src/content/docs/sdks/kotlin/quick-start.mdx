@@ -21,7 +21,6 @@ class MyApplication : Application() {
 
         val httpConfig = HttpConfig(
             apiBaseUrl = "http://localhost:8100", // Replace with your actual API endpoint
-            headers = hashMapOf("api-key" to "project-api-key") // Replace with your actual API key
         )
 
         val experimentConfig = ExperimentConfig.Builder(object : IExperimentCallback {
