@@ -3,7 +3,7 @@ import starlight from '@astrojs/starlight';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://dream11.github.io/ascend/',
+  site: 'https://dream-horizon-org.github.io/ascend/',
   base: '/ascend/',
   integrations: [
     starlight({
@@ -17,7 +17,7 @@ export default defineConfig({
         {
           icon: 'github',
           label: 'GitHub',
-          href: 'https://dream11.github.io/ascend/',
+          href: 'https://github.com/dream-horizon-org/ascend',
         },
       ],
       sidebar: [
