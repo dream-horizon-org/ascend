@@ -36,6 +36,8 @@ Ready to get started? Follow our comprehensive installation guide in our [Gettin
 - [flockr Audience Backend](https://github.com/dream-horizon-org/flockr) - Audience management server
 - [ascend-panel](https://github.com/dream-horizon-org/ascend-panel) - Admin panel
 - [ascend-android-sdk](https://github.com/dream-horizon-org/ascend-android) - Android SDK 
+- [ascend-ios-sdk](https://github.com/dream-horizon-org/ascend-ios) - IOS SDK
+
 #### License
 
 [MIT License](./LICENSE)
