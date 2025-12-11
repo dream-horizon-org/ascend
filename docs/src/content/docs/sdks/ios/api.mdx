@@ -3,400 +3,570 @@ title: API
 description: API
 ---
 
-This section documents all APIs of the Ascend Experiments SDK for iOS. The methods are available through the `AscendExperiments` plugin instance obtained via `Ascend.getPlugin(AscendExperiments.self)`.
-
-## Overview
-
-The Ascend Experiments SDK provides experiment management capabilities. It exposes APIs to:
-- Fetch experiments from a backend
-- Cache them locally
-- Retrieve type-safe variables with sensible defaults
-
-All public methods live on `AscendExperiments` unless noted otherwise.
-
-## Getting the Plugin Instance
+This section documents all APIs of experiments and events. The methods are only available through Ascend. To get all the methods, use following:
 
 ```swift
-do {
-    let experiments = try Ascend.getPlugin(AscendExperiments.self)
-    // Use experiments instance here
-} catch {
-    print("Error: \(error)")
-}
+// This returns the object which contains all the methods
+let experiments = try Ascend.getPlugin(AscendExperiments.self)
+
+// Print this object to see what are available methods here
+print(experiments)
 ```
 
 ---
 
-## Configuration APIs
+## Experiments
 
-### `configure(with:)`
+| Method | Return Type |
+|--------|-------------|
+| `getBoolValue(for:with:dontCache:ignoreCache:)` | `Bool` |
+| `getIntValue(for:with:dontCache:ignoreCache:)` | `Int` |
+| `getDoubleValue(for:with:dontCache:ignoreCache:)` | `Double` |
+| `getLongValue(for:with:dontCache:ignoreCache:)` | `Int64` |
+| `getStringValue(for:with:dontCache:ignoreCache:)` | `String` |
+| `getAllVariablesJSON(for:)` | `String?` |
+| `getExperimentVariants()` | `[String: ExperimentVariant]` |
+| `getExperimentVariantsJSON()` | `String?` |
+| `getExperimentsFromStorage()` | `[String: Experiment]?` |
+| `fetchExperiments(for:completion:)` | `Void` (completion handler) |
+| `refreshExperiments(completion:)` | `Void` (completion handler) |
+| `setExperimentsToStorage(_:)` | `Void` |
+| `getDefaultExperimentValues()` | `[String: ExperimentVariable]` |
+| `loadExperimentsData(completion:)` | `Void` (completion handler) |
+| `clearAllExperimentsData()` | `Void` |
 
-Configures the Experiments plugin with the specified configuration.
+---
+
+## Method Details
+
+### 1. getBoolValue
+
+Retrieves a boolean value from an experiment
 
 **Parameters:**
-- `configuration: AscendExperimentsConfiguration` - Configuration object containing:
-  - `apiBaseUrl: String` - Base URL for the experiments API
-  - `apiEndpoint: String` - Endpoint path (e.g., "/experiments")
-  - `headers: [String: String]` - Custom headers to include in requests
-  - `shouldRefreshOnForeground: Bool` - Whether to refresh experiments when app becomes active
 
-**Throws:** `AscendError.configurationError` if configuration is invalid
+- `for experimentKey`: The experiment identifier (e.g., "feature_toggle")
+- `with variable`: Variable name within the experiment (required)
+- `dontCache`: If true, doesn't cache the result in memory (default: false)
+- `ignoreCache`: If true, bypasses the cache and fetches fresh (default: false)
+
+**Returns:** Boolean value with fallback to false
+
+**Fallback Order:**
+
+1. Accessed cache (if ignoreCache = false)
+2. Experiment map (fetched from server)
+3. Default map (provided at initialization)
+4. Hard-coded false
 
 **Example:**
+
 ```swift
-try experiments.configure(with: AscendExperimentsConfiguration(
-    apiBaseUrl: "https://api.example.com",
-    apiEndpoint: "/experiments",
-    headers: ["X-Env": "prod"],
-    shouldRefreshOnForeground: true
-))
+let experiments = try Ascend.getPlugin(AscendExperiments.self)
+let isEnabled = experiments.getBoolValue(for: "feature_toggle", with: "enabled")
 ```
 
 ---
 
-### `initialize()`
+### 2. getIntValue
 
-Marks the plugin as initialized, triggers an async load from disk, and prepares caches.
+Retrieves an integer value from an experiment
 
-**Throws:** `AscendError` if plugin is not configured or initialization fails
+**Parameters:**
+
+- `for experimentKey`: The experiment identifier (e.g., "retry_config")
+- `with variable`: Variable name within the experiment (required)
+- `dontCache`: If true, doesn't cache the result in memory (default: false)
+- `ignoreCache`: If true, bypasses the cache and fetches fresh (default: false)
+
+**Returns:** Integer value with fallback to -1
+
+**Fallback Order:**
+
+1. Accessed cache (if ignoreCache = false)
+2. Experiment map (fetched from server)
+3. Default map (provided at initialization)
+4. Hard-coded -1
 
 **Example:**
+
 ```swift
-try experiments.initialize()
+let experiments = try Ascend.getPlugin(AscendExperiments.self)
+let maxAttempts = experiments.getIntValue(for: "retry_config", with: "max_attempts")
 ```
 
 ---
 
-### `isInitialized`
+### 3. getDoubleValue
 
-A thread-safe boolean property that indicates whether the plugin has been initialized.
+Retrieves a double value from an experiment
 
-**Returns:** `Bool` - `true` if initialized, `false` otherwise
+**Parameters:**
+
+- `for experimentKey`: The experiment identifier (e.g., "network_config")
+- `with variable`: Variable name within the experiment (required)
+- `dontCache`: If true, doesn't cache the result in memory (default: false)
+- `ignoreCache`: If true, bypasses the cache and fetches fresh (default: false)
+
+**Returns:** Double value with fallback to -1.0
+
+**Fallback Order:**
+
+1. Accessed cache (if ignoreCache = false)
+2. Experiment map (fetched from server)
+3. Default map (provided at initialization)
+4. Hard-coded -1.0
 
 **Example:**
+
 ```swift
-if experiments.isInitialized {
-    // Plugin is ready to use
+let experiments = try Ascend.getPlugin(AscendExperiments.self)
+let timeout = experiments.getDoubleValue(for: "network_config", with: "timeout")
+```
+
+---
+
+### 4. getLongValue
+
+Retrieves a long (Int64) value from an experiment
+
+**Parameters:**
+
+- `for experimentKey`: The experiment identifier (e.g., "cache_config")
+- `with variable`: Variable name within the experiment (required)
+- `dontCache`: If true, doesn't cache the result in memory (default: false)
+- `ignoreCache`: If true, bypasses the cache and fetches fresh (default: false)
+
+**Returns:** Int64 value with fallback to -1
+
+**Fallback Order:**
+
+1. Accessed cache (if ignoreCache = false)
+2. Experiment map (fetched from server)
+3. Default map (provided at initialization)
+4. Hard-coded -1
+
+**Example:**
+
+```swift
+let experiments = try Ascend.getPlugin(AscendExperiments.self)
+let ttl = experiments.getLongValue(for: "cache_config", with: "ttl")
+```
+
+---
+
+### 5. getStringValue
+
+Retrieves a string value from an experiment
+
+**Parameters:**
+
+- `for experimentKey`: The experiment identifier (e.g., "button_exp_test")
+- `with variable`: Variable name within the experiment (required)
+- `dontCache`: If true, doesn't cache the result in memory (default: false)
+- `ignoreCache`: If true, bypasses the cache and fetches fresh (default: false)
+
+**Returns:** String value with fallback to "" (empty string)
+
+**Fallback Order:**
+
+1. Accessed cache (if ignoreCache = false)
+2. Experiment map (fetched from server)
+3. Default map (provided at initialization)
+4. Hard-coded "" (empty string)
+
+**Example:**
+
+```swift
+let experiments = try Ascend.getPlugin(AscendExperiments.self)
+let color = experiments.getStringValue(for: "button_exp_test", with: "color")
+```
+
+---
+
+### 6. getAllVariablesJSON
+
+Retrieves all variables for a specific experiment as a JSON string
+
+**Parameters:**
+
+- `for experimentKey`: The experiment identifier
+
+**Returns:** String? containing JSON representation of all variables, or nil if not found
+
+**Fallback Order:**
+
+1. Experiment map (fetched from server)
+2. Default map (provided at initialization)
+3. nil
+
+**Example:**
+
+```swift
+let experiments = try Ascend.getPlugin(AscendExperiments.self)
+if let jsonString = experiments.getAllVariablesJSON(for: "button_exp_test") {
+    print("Variables: \(jsonString)")
 }
 ```
 
 ---
 
-## Fetching Experiments
-
-### `fetchExperiments(for:completion:)`
+### 7. fetchExperiments
 
 Fetches experiments from the backend server.
 
 **Parameters:**
-- `for: [String: ExperimentVariable]` - Map of API paths to default experiment variables
-  - Keys are experiment identifiers (e.g., "/api/v1/home")
-  - Values are `ExperimentVariable` instances containing default values
-- `completion: @escaping (ExperimentResponse?, String?) -> Void` - Completion handler
-  - First parameter: `ExperimentResponse?` - Response object on success, `nil` on error
-  - Second parameter: `String?` - Error message on failure, `nil` on success
+
+- `for experimentKeys`: Dictionary of experiment keys with their default values (e.g., `["button_color": .dictionary(["color": .string("blue")])]`)
+- `completion`: Completion handler with `(ExperimentResponse?, String?)` parameters
 
 **Behavior:**
-- Updates in-memory `defaultExperiments` map so getters have defaults even before network fetch
-- If user auth info is missing (via `Ascend.user.isUserAuthInfoAvailable()`), returns empty `ExperimentResponse` immediately
-- Calls `ExperimentsAPI.fetchExperimentsAsync` which:
-  - Builds URL from `apiBaseUrl + apiEndpoint`
-  - Builds payload from provided API paths
-  - Composes headers (API key, auth, custom headers from configuration)
-  - Performs network request and decodes `[Experiment]` into a map keyed by `experiment_key`
-  - Replaces `currentExperiments` and persists to storage
-- Completion handler is called on the main queue
+
+- Appends the provided default values to the default map
+- Triggers network requests to fetch the experiments
+- API CALL - POST request to `/v1/allocations` endpoint (or configured `apiEndpoint`)
+
+**API Request Details:**
+
+- **Method**: POST
+- **Endpoint**: Configured `apiEndpoint` (default: `/v1/users/experiments`, but commonly `/v1/allocations`)
+- **Headers**: 
+  - `api-key`: From configuration headers
+  - `user-id`: Current user ID (if available)
+  - `guest-id`: Current guest ID
+  - `content-type`: `application/json`
+  - Custom headers from configuration
+- **Body**: JSON payload with `experiment_keys`, `stable_id`, `user_id`, and `attributes`
+
+**On Success:**
+
+- Updates experiment map with fetched experiments
+- Removes experiments not in defaultExperiments
+- Persists experiment map to local storage
+- Calls completion handler with `ExperimentResponse` containing fetched experiments
+
+**On Error:**
+
+- Calls completion handler with `nil` response and error string
 
 **Example:**
-```swift
-experiments.fetchExperiments(
-    for: [
-        "/api/v1/home": ExperimentVariable(boolValue: true),
-        "/api/v1/paywall": ExperimentVariable(stringValue: "control"),
-        "/api/v1/network": ExperimentVariable(intValue: 3)
-    ]
-) { response, error in
-    if let error = error {
-        print("Failed to fetch experiments: \(error)")
-        return
-    }
 
-    if let response = response {
-        print("Experiments fetched successfully")
-        // Now query variables using getters below
+```swift
+let experiments = try Ascend.getPlugin(AscendExperiments.self)
+
+experiments.fetchExperiments(for: [
+    "button_color": .dictionary([
+        "color": .string("blue")
+    ])
+]) { response, error in
+    if let error = error {
+        print("Error: \(error)")
+    } else if let response = response {
+        print("Fetched \(response.data?.count ?? 0) experiments")
     }
 }
 ```
 
 ---
 
-## Reading Variables (Type-Safe Methods)
+### 8. refreshExperiments
 
-All variable getters follow the same resolution precedence:
-1. **Session cache** (if `ignoreCache == false`)
-2. **Current experiments** (from latest fetch) - updates session cache on hit
-3. **Default experiments** (provided in `fetchExperiments`)
-4. **Hard fallbacks** from `ExperimentsConstants`
-
-### `getBoolValue(for:with:dontCache:ignoreCache:)`
-
-Retrieves a boolean value from an experiment.
+Fetches experiments using predefined experiment keys in the default map
 
 **Parameters:**
-- `for experiment_key: String` - The experiment identifier (e.g., "/api/v1/home")
-- `with variable: String` - Variable name within the experiment (default: "value")
-- `dontCache: Bool` - If `true`, skip writing to session cache (default: `false`)
-- `ignoreCache: Bool` - If `true`, skip reading from session cache (default: `false`)
 
-**Returns:** `Bool` - Boolean value with fallback to `ExperimentsConstants.DataSource.BOOL_FALLBACK` (usually `false`)
+- `completion`: Completion handler with `(ExperimentResponse?, String?)` parameters
 
-**Example:**
-```swift
-let enabled = experiments.getBoolValue(
-    for: "/api/v1/home",
-    with: "enabled"
-)
-```
+**Behavior:**
 
-### `getIntValue(for:with:dontCache:ignoreCache:)`
+- Uses existing default experiments (from configuration) to refresh
+- Builds request from keys of the defaultExperiments map
+- Triggers network request to fetch experiments
+- API CALL - Same as `fetchExperiments` but uses default map keys
 
-Retrieves an integer value from an experiment.
+**On Success:**
 
-**Parameters:**
-- `for experiment_key: String` - The experiment identifier
-- `with variable: String` - Variable name (default: "value")
-- `dontCache: Bool` - Skip writing to cache (default: `false`)
-- `ignoreCache: Bool` - Skip reading from cache (default: `false`)
+- If `shouldRefreshOnForeground` is true, updates caching headers (e.g., cache window/last modified) from the response
+- Parses response to Experiment array and updates experiment map
+- Removes experiments not present in defaultExperiments
+- Persists experiment map to local storage
+- Calls completion handler with `ExperimentResponse` (on main thread)
 
-**Returns:** `Int` - Integer value with fallback to `ExperimentsConstants.DataSource.INT_FALLBACK`
+**On Error or Exception:**
+
+- Processes error (including 304 Not Modified handling) and calls completion handler with `nil` response and error string (on main thread)
 
 **Example:**
-```swift
-let maxRetries = experiments.getIntValue(
-    for: "/api/v1/network",
-    with: "maxRetries"
-)
-```
-
-### `getLongValue(for:with:dontCache:ignoreCache:)`
-
-Retrieves an Int64 (long) value from an experiment.
-
-**Parameters:**
-- `for experiment_key: String` - The experiment identifier
-- `with variable: String` - Variable name (default: "value")
-- `dontCache: Bool` - Skip writing to cache (default: `false`)
-- `ignoreCache: Bool` - Skip reading from cache (default: `false`)
-
-**Returns:** `Int64` - Long value with fallback to `ExperimentsConstants.DataSource.LONG_FALLBACK`
-
-**Example:**
-```swift
-let userId = experiments.getLongValue(
-    for: "/api/v1/user",
-    with: "userId"
-)
-```
-
-### `getDoubleValue(for:with:dontCache:ignoreCache:)`
-
-Retrieves a double value from an experiment.
-
-**Parameters:**
-- `for experiment_key: String` - The experiment identifier
-- `with variable: String` - Variable name (default: "value")
-- `dontCache: Bool` - Skip writing to cache (default: `false`)
-- `ignoreCache: Bool` - Skip reading from cache (default: `false`)
-
-**Returns:** `Double` - Double value with fallback to `ExperimentsConstants.DataSource.DOUBLE_FALLBACK`
-
-**Example:**
-```swift
-let timeout = experiments.getDoubleValue(
-    for: "/api/v1/network",
-    with: "timeout"
-)
-```
-
-### `getStringValue(for:with:dontCache:ignoreCache:)`
-
-Retrieves a string value from an experiment.
-
-**Parameters:**
-- `for experiment_key: String` - The experiment identifier
-- `with variable: String` - Variable name (default: "value")
-- `dontCache: Bool` - Skip writing to cache (default: `false`)
-- `ignoreCache: Bool` - Skip reading from cache (default: `false`)
-
-**Returns:** `String` - String value with fallback to `ExperimentsConstants.DataSource.STRING_FALLBACK` (usually empty string)
-
-**Example:**
-```swift
-let buttonColor = experiments.getStringValue(
-    for: "/api/v1/paywall",
-    with: "color"
-)
-```
-
-## Program Flow
-
-### Initialization Flow
-
-1. **App calls `Ascend.initialize(with:)`** → Initializes core + plugin manager + lifecycle notifier
-2. **Plugin manager registers `AscendExperiments`**
-3. **Client obtains plugin** with `Ascend.getPlugin(AscendExperiments.self)`
-4. **Client calls `configure(with:)`** → Sets configuration
-5. **Client calls `initialize()`** → Sets state and asynchronously loads persisted experiments from storage
-
-### Fetching Flow
-
-1. **Client calls `fetchExperiments(for:completion:)`**
-   - Merges provided defaults into in-memory default map
-   - Validates user auth via `Ascend.user.isUserAuthInfoAvailable()`
-   - Uses `ExperimentsAPI.fetchExperimentsAsync` to request experiments
-   - Replaces `currentExperiments` with fresh set and persists to storage
-
-### Reading Flow
-
-When client queries variables, resolution follows this layered lookup:
-1. **Session cache** (per API path + variable name)
-2. **currentExperiments** from latest fetch
-3. **defaultExperiments** map
-4. **Hard fallbacks** from `ExperimentsConstants`
-
-## Lifecycle Integration
-
-The plugin automatically responds to lifecycle events via `AscendLifecycleNotifier`:
-
-### Foreground Refresh
-
-When app becomes active (`.appDidBecomeActive`):
-- If `shouldRefreshOnForeground == true`, automatically triggers `refreshExperiments`
-- Uses last known configuration and API paths
-
-### User Login
-
-When user logs in (`.userLoggedIn(userId)`):
-- Can trigger `refreshExperimentsForUser(userId:)` to fetch user-specific variants
-
-### User Logout
-
-When user logs out (`.userLoggedOut`):
-- Calls `clearAllExperimentsData()` to wipe current/default maps and storage
-
-### Background Save
-
-When app enters background (`.appDidEnterBackground`):
-- Automatically calls `saveExperimentsToCache()` to persist current experiments
-
-## Threading and Safety
-
-- All internal state mutations and reads occur on a dedicated `experiments` queue via `ThreadSafety.safeDispatchOnExperimentsQueue*` helpers
-- Public methods marshal work to this queue to avoid data races and preserve consistency
-- Completion handlers are called on the main queue
-
-## Error Handling
-
-- **Misconfiguration**: Invalid configuration (e.g., invalid URL) throws `AscendError.configurationError`
-- **Network failures**: Network or decoding failures from `fetchExperimentsAsync` surface back to completion as an error string
-- **Missing auth**: If user auth is missing, `fetchExperiments` returns empty `ExperimentResponse` (no error) so clients can proceed with defaults
-
-## Storage and Caching
-
-### In-Memory Storage
-
-- **`currentExperiments: [String: Experiment]`** → Latest fetched experiments
-- **`defaultExperiments: [String: ExperimentVariable]`** → Defaults supplied by client when calling `fetchExperiments`
-- **`ExperimentsCache.sessionVariables`** → Per-session variable cache, keyed by `experiment_key` and variable name
-
-### On-Disk Storage
-
-- Snapshot persisted on updates and app backgrounding
-- Restored automatically on `initialize()`
-
-## Configuration Types
-
-### `AscendExperimentsConfiguration`
 
 ```swift
-struct AscendExperimentsConfiguration {
-    let apiBaseUrl: String
-    let apiEndpoint: String
-    let headers: [String: String]
-    let shouldRefreshOnForeground: Bool
-}
-```
-
-### `ExperimentVariable`
-
-Represents a default variable value with type-safe initialization:
-
-```swift
-// Boolean value
-ExperimentVariable(boolValue: true)
-
-// String value
-ExperimentVariable(stringValue: "control")
-
-// Integer value
-ExperimentVariable(intValue: 42)
-
-// Double value
-ExperimentVariable(doubleValue: 3.14)
-
-// Long value
-ExperimentVariable(longValue: 123456789)
-```
-
-### `ExperimentResponse`
-
-Response object returned from `fetchExperiments` completion handler:
-
-```swift
-struct ExperimentResponse {
-    // Contains experiment data
-}
-```
-
-## Best Practices
-
-1. **Always access via `Ascend.getPlugin`**: Use `try Ascend.getPlugin(AscendExperiments.self)` after `Ascend.initialize(with:)`
-2. **Configure before initialize**: Call `configure(with:)` before `initialize()` for deterministic startup
-3. **Provide meaningful defaults**: In `fetchExperiments(for:)`, supply default `ExperimentVariable` values so app is robust without network
-4. **Handle errors gracefully**: SDK falls back to defaults, but always handle errors appropriately
-5. **Fetch after login**: After login, trigger `fetchExperiments` to ensure user-targeted variants
-6. **Use cache controls wisely**:
-   - Use `dontCache` for highly dynamic values
-   - Use `ignoreCache` to force re-resolution
-7. **Keep paths consistent**: Maintain `experiment_key` and variable names consistent with backend definitions
-
-## Quick API Reference
-
-### Setup
-```swift
-try Ascend.initialize(with: AscendConfig(
-    coreConfig: AscendCoreConfig(...),
-    plugins: [AscendExperiments.shared]
-))
-
 let experiments = try Ascend.getPlugin(AscendExperiments.self)
-try experiments.configure(with: AscendExperimentsConfiguration(...))
-try experiments.initialize()
+
+experiments.refreshExperiments { response, error in
+    if let error = error {
+        print("Error: \(error)")
+    } else if let response = response {
+        print("Refreshed \(response.data?.count ?? 0) experiments")
+    }
+}
 ```
 
-### Fetch
+---
+
+### 9. getExperimentVariants
+
+Returns a copy of all currently loaded experiment variants
+
+**Parameters:**
+
+- None
+
+**Returns:** `[String: ExperimentVariant]` where:
+- Key: experimentKey (experiment identifier)
+- Value: ExperimentVariant object containing:
+  - `experimentId`: Unique experiment identifier
+  - `variantName`: Name of the assigned variant
+
+**Behavior:**
+
+- Creates a new dictionary copy of the current experiments
+- No network calls - purely returns cached data
+- Data source: experiment map populated from:
+  - Initial load from local storage (on startup)
+  - Updates from successful API responses (refreshExperiments/fetchExperiments)
+- Returns empty dictionary if no experiments have been loaded yet
+
+**Example:**
+
 ```swift
-experiments.fetchExperiments(
-    for: [experiment_key: ExperimentVariable],
-    completion: (ExperimentResponse?, String?) -> Void
-)
+let experiments = try Ascend.getPlugin(AscendExperiments.self)
+let variants = experiments.getExperimentVariants()
+for (experimentKey, variant) in variants {
+    print("\(experimentKey): \(variant.variantName)")
+}
 ```
 
-### Getters
+---
+
+### 10. setExperimentsToStorage
+
+Persists experiment data to local storage and updates the in-memory cache
+
+**Parameters:**
+
+- `experiments`: `[String: Experiment]?` containing experiment data to persist (nil to clear all)
+
+**Behavior:**
+
+- Persists the experiments data to local storage via AscendStorage
+- Updates the in-memory experiment map with the new data
+- No network calls - purely local storage operation
+- Used for manually setting experiment data (e.g., from external sources or testing)
+
+**Return/Fallback Order:**
+
+- No return value - This is a void method
+- No fallback mechanism - If persistence fails, the error is logged but not propagated
+- Immediate effect - Data is immediately available in memory after calling this method
+- Storage failure handling - If storage write fails, the in-memory map is still updated, so experiments remain available for the current session
+
+**Example:**
+
 ```swift
-experiments.getBoolValue(for: String, with: String, dontCache: Bool, ignoreCache: Bool) -> Bool
-experiments.getIntValue(for: String, with: String, dontCache: Bool, ignoreCache: Bool) -> Int
-experiments.getLongValue(for: String, with: String, dontCache: Bool, ignoreCache: Bool) -> Int64
-experiments.getDoubleValue(for: String, with: String, dontCache: Bool, ignoreCache: Bool) -> Double
-experiments.getStringValue(for: String, with: String, dontCache: Bool, ignoreCache: Bool) -> String
+let experiments = try Ascend.getPlugin(AscendExperiments.self)
+
+// Set experiments
+let testExperiments: [String: Experiment] = [
+    "test_key": Experiment(
+        experimentId: "exp-123",
+        userIdentifierType: "user_id",
+        status: "active",
+        variables: .dictionary(["color": .string("red")]),
+        experimentKey: "test_key",
+        variantName: "variant_a"
+    )
+]
+experiments.setExperimentsToStorage(testExperiments)
+
+// Clear all experiments
+experiments.setExperimentsToStorage(nil)
 ```
+
+---
+
+### 11. getExperimentsFromStorage
+
+Retrieves experiment data from local storage (disk)
+
+**Parameters:**
+
+- None
+
+**Returns:** `[String: Experiment]?` containing persisted experiment data, or nil if not found
+
+**Behavior:**
+
+- Returns a dictionary containing persisted experiment data
+- Reads from disk storage using the `ascend_experiments.json` file
+- No network calls - purely local storage operation
+- Used to retrieve previously saved experiment data
+- Supports both ExperimentSnapshot format (new) and raw dictionary format (legacy)
+
+**Return/Fallback Order:**
+
+- Returns: `[String: Experiment]?` - the persisted experiment data
+- Fallback mechanism:
+  - If file doesn't exist, returns nil
+  - If JSON deserialization fails, returns nil
+  - No exception thrown - gracefully handles storage issues
+- Data source priority: Only reads from local disk storage, does not check in-memory cache
+
+**Example:**
+
+```swift
+let experiments = try Ascend.getPlugin(AscendExperiments.self)
+
+if let storedExperiments = experiments.getExperimentsFromStorage() {
+    print("Loaded \(storedExperiments.count) experiments from storage")
+    for (key, experiment) in storedExperiments {
+        print("\(key): \(experiment.variantName)")
+    }
+} else {
+    print("No experiments found in storage")
+}
+```
+
+---
+
+### 12. getExperimentVariantsJSON
+
+Returns all currently loaded experiment variants as a JSON string
+
+**Parameters:**
+
+- None
+
+**Returns:** `String?` containing JSON representation of all experiment variants, or nil if encoding fails
+
+**Behavior:**
+
+- Gets all experiment variants using `getExperimentVariants()`
+- Encodes the variants dictionary to JSON string
+- Returns nil if JSON encoding fails
+
+**Example:**
+
+```swift
+let experiments = try Ascend.getPlugin(AscendExperiments.self)
+
+if let jsonString = experiments.getExperimentVariantsJSON() {
+    print("Variants JSON: \(jsonString)")
+}
+```
+
+---
+
+### 13. getDefaultExperimentValues
+
+Returns the default experiment values that were configured at initialization
+
+**Parameters:**
+
+- None
+
+**Returns:** `[String: ExperimentVariable]` - Dictionary of default experiment values keyed by API path
+
+**Behavior:**
+
+- Returns the default experiments map that was provided during configuration
+- No network calls - purely returns configured defaults
+- Used to retrieve the default values that were set at initialization
+
+**Example:**
+
+```swift
+let experiments = try Ascend.getPlugin(AscendExperiments.self)
+
+let defaults = experiments.getDefaultExperimentValues()
+for (key, value) in defaults {
+    print("Default for \(key): \(value)")
+}
+```
+
+---
+
+### 14. loadExperimentsData
+
+Loads experiments data asynchronously from disk storage with snapshot information
+
+**Parameters:**
+
+- `completion`: Completion handler with `(ExperimentSnapshot?, Error?)` parameters
+
+**Behavior:**
+
+- Returns `ExperimentSnapshot` containing:
+  - `timestamp`: Timestamp when the snapshot was taken
+  - `data`: Dictionary of experiments keyed by their API path
+- Reads from disk storage using the `ascend_experiments.json` file
+- Supports both ExperimentSnapshot format (new) and raw dictionary format (legacy)
+- For legacy format, uses file modification date as timestamp
+- No network calls - purely local storage operation
+
+**On Success:**
+
+- Calls completion handler with `ExperimentSnapshot` containing persisted data (on main thread)
+
+**On Error:**
+
+- Calls completion handler with `nil` snapshot and error (on main thread)
+
+**Example:**
+
+```swift
+let experiments = try Ascend.getPlugin(AscendExperiments.self)
+
+experiments.loadExperimentsData { snapshot, error in
+    if let error = error {
+        print("Error loading experiments: \(error)")
+    } else if let snapshot = snapshot {
+        print("Loaded snapshot with \(snapshot.count) experiments at timestamp: \(snapshot.timestamp)")
+    }
+}
+```
+
+---
+
+### 15. clearAllExperimentsData
+
+Clears all experiments data from memory and storage
+
+**Parameters:**
+
+- None
+
+**Returns:** `Void`
+
+**Behavior:**
+
+- Clears currentExperiments map
+- Clears defaultExperiments map
+- Clears access map (session-scoped cache)
+- Persists empty state to local storage
+- No network calls - purely local operation
+- Used when user logs out or when you want to reset all experiment data
+
+**Example:**
+
+```swift
+let experiments = try Ascend.getPlugin(AscendExperiments.self)
+
+experiments.clearAllExperimentsData()
+print("All experiments data cleared")
+```
+
+---
+
+## Events
+
+Coming soon...
+
