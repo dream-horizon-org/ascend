@@ -7,15 +7,41 @@ description: Installation Guide
 
 Before integrating the Ascend iOS SDK, ensure your project meets the following requirements:
 
-- **iOS**: iOS 11.0 or higher
+- **iOS Version**: Minimum iOS 13.0
+- **Swift Version**: 5.0 or higher
 - **Xcode**: 12.0 or higher
-- **Swift**: 5.0 or higher
+- **Deployment Target**: iOS 13.0 or later
 
 ---
 
-## Package Installation
+## Swift Package Manager
 
-### Using CocoaPods
+### 1. Add Package Dependency
+
+In Xcode:
+
+1. Go to **File > Add Packages…**
+2. Enter the package repository URL:
+   ```
+   https://github.com/dream-horizon-org/ascend-ios
+   ```
+3. Select the **Ascend** package
+4. Choose the version you want to use (preferably use a specific tag like `1.0.0`)
+5. Click **Add Package**
+
+Alternatively, add the dependency directly in your `Package.swift`:
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/dream-horizon-org/ascend-ios", from: "1.0.0")
+]
+```
+
+---
+
+## CocoaPods
+
+### 1. Add to Podfile
 
 Add the following to your `Podfile`:
 
@@ -25,15 +51,13 @@ platform :ios, '11.0'
 target 'YourApp' do
   use_frameworks!
 
-  # Ascend Core SDK
-  pod 'AscendSDK', '~> 1.0'
-
-  # Ascend Experiments Plugin
-  pod 'AscendExperiments', '~> 1.0'
+  pod 'Ascend', :git => 'https://github.com/dream-horizon-org/ascend-ios.git', :tag => '1.0.0'
 end
 ```
 
-Then run:
+### 2. Install Dependencies
+
+Run the following command in your terminal:
 
 ```bash
 pod install
@@ -41,21 +65,20 @@ pod install
 
 ---
 
-### Using Swift Package Manager
+## Manual Installation
 
-1. In Xcode, go to **File > Add Packages...**
-2. Enter the package repository URL
-3. Select the **AscendSDK** and **AscendExperiments** packages
-4. Choose the version you want to use
-5. Click **Add Package**
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/dream-horizon-org/ascend-ios.git
+   ```
 
-Alternatively, add the dependency to your `Package.swift`:
+2. Drag the `Sources` folder into your Xcode project
 
-```swift
-dependencies: [
-    .package(url: "https://github.com/dream11/ascend-ios-sdk.git", from: "1.0.0")
-]
-```
+3. Make sure to add the following frameworks to your project:
+   - Foundation
+   - UIKit
+   - SystemConfiguration
+   - CoreLocation
 
 ---
 
@@ -64,8 +87,18 @@ dependencies: [
 After installation, import the SDK in your Swift files:
 
 ```swift
-import AscendSDK
-import AscendExperiments
+import Ascend
 ```
 
 ---
+
+## Verify Installation
+
+After installation, verify that you can import the SDK:
+
+```swift
+import Ascend
+```
+
+If the import succeeds, the SDK is properly installed.
+
