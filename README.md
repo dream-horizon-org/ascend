@@ -15,13 +15,13 @@ An open source experimentation platform to enable individuals or companies to te
 
 ## Core Concepts
 
-Learn about the fundamental concepts and architecture of Ascend in our [documentation](https://dream-horizon-org.github.io/ascend/).
+Learn about the fundamental concepts and architecture of Ascend in our [documentation](https://ascend.dreamhorizon.org/).
 
 ---
 
 ## Installation
 
-Ready to get started? Follow our comprehensive installation guide in our [Getting Started Guide](https://dream-horizon-org.github.io/ascend/introduction/getting-started/).
+Ready to get started? Follow our comprehensive installation guide in our [Getting Started Guide](https://ascend.dreamhorizon.org/introduction/getting-started/).
 
 ---
 

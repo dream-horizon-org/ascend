@@ -26,7 +26,7 @@ export default defineConfig({
           items: [
             'introduction/overview',
             'introduction/getting-started',
-             'introduction/why-use-ascend',
+            'introduction/why-use-ascend',
           ],
         },
         {
@@ -35,46 +35,46 @@ export default defineConfig({
             'concepts/overview'
           ],
         },
-         {
+        {
           label: 'SDKs',
           items: [
-          {
+            {
               label: 'Android',
-                         items:[
-                             'sdks/kotlin/installation',
-                             'sdks/kotlin/quick-start',
-                             'sdks/kotlin/api'
+              items: [
+                'sdks/kotlin/installation',
+                'sdks/kotlin/quick-start',
+                'sdks/kotlin/api'
 
 
-                              ],
-              },
-          {
-                        label: 'iOS',
-                                   items:[
-                                       'sdks/ios/installation',
-                                        'sdks/ios/quick-start',
-                                       'sdks/ios/api'
+              ],
+            },
+            {
+              label: 'iOS',
+              items: [
+                'sdks/ios/installation',
+                'sdks/ios/quick-start',
+                'sdks/ios/api'
 
-                                        ],
-                        },
-                    {
-                                  label: 'React Native',
-                                             items:[
-                                                 'sdks/react-native/installation',
-                                                  'sdks/react-native/quick-start',
-                                                 'sdks/react-native/api'
+              ],
+            },
+            {
+              label: 'React Native',
+              items: [
+                'sdks/react-native/installation',
+                'sdks/react-native/quick-start',
+                'sdks/react-native/api'
 
-                                                  ],
-                                  },
+              ],
+            },
 
           ],
-       },
+        },
         {
           label: 'How-To Guides',
           items: [
             'howto/how-to-contribute',
             'howto/create-first-experiment'
-            ],
+          ],
         },
       ],
       customCss: ['./src/styles/custom.css'],

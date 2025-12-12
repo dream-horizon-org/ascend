@@ -13,7 +13,7 @@ npm install
 npm run dev
 ```
 
-The site will be available at `http://localhost:4321/ascend/`
+The site will be available at `http://localhost:4321/`
 
 ### Build
 
@@ -36,8 +36,8 @@ npm run preview
 ## 📝 Documentation Structure
 
 ### GitHub Pages Setup
-- **Site URL**: `https://dream-horizon-org.github.io/ascend/`
-- **Base Path**: `/ascend/`
+- **Site URL**: `https://ascend.dreamhorizon.org/`
+- **Base Path**: `/`
 - **Repository**: `https://dream-horizon-org.github.io/ascend`
 
 ### Documentation Sections
@@ -88,7 +88,7 @@ This site is configured for GitHub Pages deployment:
 2. Build workflow deploys to the `gh-pages` branch
 3. Site published from the `gh-pages` branch
 
-The site will be accessible at: `https://dream-horizon-org.github.io/ascend/`
+The site will be accessible at: `https://ascend.dreamhorizon.org/`
 
 ---
 
