@@ -5,6 +5,8 @@ PROJECT_NAME_DEFAULT="My Project"
 ASCEND_DEFAULT_DIR="${HOME}/.ascend"
 GIT_ORG="dream-horizon-org"
 
+export ASCEND_DEFAULT_DIR
+
 REPO_LIST=("testlab" "flockr" "ascend-panel")
 BRANCH_LIST=("main" "main" "main")
 
@@ -169,6 +171,30 @@ checkout_repos () {
   done
 }
 
+
+download_otel_agent () {
+  local otel_dir="${base_dir}/monitoring"
+  local otel_file="${otel_dir}/opentelemetry-javaagent.jar"
+  local version="2.8.0"
+
+  mkdir -p "${otel_dir}"
+
+  if [ ! -f "${otel_file}" ]; then
+    echo "📥 Downloading OpenTelemetry Java Agent v${version}..."
+    curl -L "https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v${version}/opentelemetry-javaagent.jar" \
+      -o "${otel_file}"
+
+    if [ ! -f "${otel_file}" ]; then
+      echo "❌ Failed to download OTel agent"
+      exit 1
+    fi
+
+    echo "✅ OTel agent downloaded to ${otel_file}"
+  else
+    echo "✔ OTel agent already present: ${otel_file}"
+  fi
+}
+
 start_services () {
   local base_dir=$1
   local project_key=$2
@@ -185,12 +211,26 @@ start_services () {
     echo "Starting services for ${repo}..."
     cd "${repo_dir}" || continue
 
-    local command="PROJECT_NAME=\"${project_name}\" PROJECT_KEY=${project_key} docker compose up -d"
-    if eval "${command}" 2>/dev/null; then
-      echo "✅ Started ${repo} services"
-    else
-      echo "❌ Failed to start services for ${repo}"
-    fi
+     if [ "$ENABLE_OTEL" = true ] && [ -f docker-compose.otel.yml ]; then
+          echo "🔵 OpenTelemetry ENABLED for ${repo}"
+          PROJECT_NAME="${project_name}" \
+          PROJECT_KEY="${project_key}" \
+          docker compose \
+            -f docker-compose.yml \
+            -f docker-compose.otel.yml \
+            up -d
+        else
+          echo "⚪ OpenTelemetry DISABLED for ${repo}"
+          PROJECT_NAME="${project_name}" \
+          PROJECT_KEY="${project_key}" \
+          docker compose up -d
+        fi
+
+        if [ $? -eq 0 ]; then
+          echo "✅ Started ${repo} services"
+        else
+          echo "❌ Failed to start services for ${repo}"
+        fi
   done
 }
 
@@ -266,6 +306,14 @@ main () {
 
   echo ""
   echo "🐳 Starting dependent services..."
+
+  if [ "$ENABLE_OTEL" = true ]; then
+    echo "🔵 OpenTelemetry Enabled"
+    download_otel_agent
+  else
+    echo "⚪ OpenTelemetry Disabled"
+  fi
+
   start_services "${base_dir}" "${project_key}" "${project_name}"
 
   echo ""
