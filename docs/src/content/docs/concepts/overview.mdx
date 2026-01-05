@@ -145,9 +145,9 @@ let buttonColor = experiments.getStringValue(for: "button_color", with: "color")
 ```
 
 **React Native:**
-```javascript
-import { Ascend } from 'react-native-ascend-react-native-sdk';
-const buttonColor = await Ascend.getStringValue('button_color', 'color');
+```typescript
+import { Experiments } from '@dreamhorizonorg/ascend-react-native';
+const buttonColor = await Experiments.getStringFlag('button_color', 'color');
 ```
 
 ---

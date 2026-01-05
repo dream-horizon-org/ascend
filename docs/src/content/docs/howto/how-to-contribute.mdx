@@ -175,7 +175,7 @@ ascend/
 │   ├── Package.swift
 │   └── Ascend.podspec
 │
-├── ascend-react-native-sdk/           # React Native SDK
+├── ascend-react-native/              # React Native SDK
 │   ├── src/
 │   ├── android/
 │   ├── ios/
@@ -292,20 +292,18 @@ Ensure you have the following installed:
 
 #### For React Native SDK Development
 
-- **Node.js 16+** ([Download](https://nodejs.org/))
+- **Node.js 14+** ([Download](https://nodejs.org/))
   ```bash
   node --version
   ```
 
-- **Yarn** ([Download](https://yarnpkg.com/))
+- **Yarn 3.6.1** (via Corepack)
   ```bash
+  sudo corepack enable
   yarn --version
   ```
 
-- **React Native CLI**
-  ```bash
-  npm install -g react-native-cli
-  ```
+- **React Native 0.60+**
 
 ---
 
@@ -400,13 +398,13 @@ curl http://localhost:8080/v1/health
 #### 1. Clone Repository
 
 ```bash
-git clone https://github.com/ascend/ascend-android-sdk.git
-cd ascend-android-sdk
+git clone https://github.com/dream-horizon-org/ascend-android.git
+cd ascend-android
 ```
 
 #### 2. Open in Android Studio
 
-- File → Open → Select `ascend-android-sdk` directory
+- File → Open → Select `ascend-android` directory
 - Wait for Gradle sync to complete
 
 #### 3. Build
@@ -431,7 +429,7 @@ cd ascend-android-sdk
 #### 1. Clone Repository
 
 ```bash
-git clone https://github.com/ascend/ascend-ios.git
+git clone https://github.com/dream-horizon-org/ascend-ios.git
 cd ascend-ios
 ```
 
@@ -464,23 +462,29 @@ open Package.swift
 #### 1. Clone Repository
 
 ```bash
-git clone https://github.com/ascend/ascend-react-native-sdk.git
-cd ascend-react-native-sdk
+git clone https://github.com/dream-horizon-org/ascend-react-native.git
+cd ascend-react-native
 ```
 
-#### 2. Install Dependencies
+#### 2. Enable Corepack
+
+```bash
+sudo corepack enable
+```
+
+#### 3. Install Dependencies
 
 ```bash
 yarn install
 ```
 
-#### 3. Build TypeScript
+#### 4. Build TypeScript
 
 ```bash
 yarn prepare
 ```
 
-#### 4. Run Example App
+#### 5. Run Example App
 
 **iOS:**
 ```bash
@@ -850,9 +854,10 @@ repositories {
 
 **React Native:**
 ```bash
-# Link local package
+# Use local package in example app
 cd example
-yarn link ../
+yarn install
+# The example app already references the local package
 ```
 
 ### Common Issues
