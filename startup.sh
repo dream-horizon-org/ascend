@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
-PROJECT_KEY_DEFAULT="my-project"
-PROJECT_NAME_DEFAULT="My Project"
+PROJECT_KEY_DEFAULT="my-first-project"
+PROJECT_NAME_DEFAULT="My First Project"
 ASCEND_DEFAULT_DIR="${HOME}/.ascend"
 GIT_ORG="dream-horizon-org"
 
-REPO_LIST=("testlab" "flockr" "ascend-panel")
-BRANCH_LIST=("main" "main" "main")
+REPO_LIST=("testlab" "flockr" "ascend-panel" "ascend-astra")
+BRANCH_LIST=("main" "main" "main" "main")
 
 # Detect user's preferred git clone protocol (SSH or HTTPS)
 get_git_clone_prefix () {
