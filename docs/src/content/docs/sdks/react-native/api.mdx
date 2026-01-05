@@ -3,15 +3,14 @@ title: API
 description: API
 ---
 
-This section documents the all APIs of experiments and events. The methods are only available through Ascend. To get all the methods, use following:
+This section documents all APIs of experiments and events. The methods are only available through Ascend. To get all the methods, use following:
 
-```kotlin
+```typescript
 // This returns the object which contains all the methods
+import { Experiments } from '@dreamhorizonorg/ascend-react-native';
 
-val experimentPlugin = Ascend.getPlugin<DRSPlugin>(Plugins.EXPERIMENTS)
-
-// console this object to see what are available methods here.
-println(experimentPlugin)
+// Use the Experiments object to access all methods
+console.log(Experiments);
 ```
 
 ---
@@ -20,244 +19,190 @@ println(experimentPlugin)
 
 | Method | Return Type |
 |--------|-------------|
-| `getBooleanFlag(experiment_key: String, variable: String)` | `Boolean` |
-| `getIntFlag(experiment_key: String, variable: String)` | `Int` |
-| `getDoubleFlag(experiment_key: String, variable: String)` | `Double` |
-| `getLongFlag(experiment_key: String, variable: String)` | `Long` |
-| `getStringFlag(experiment_key: String, variable: String)` | `String` |
-| `getAllVariables(experiment_key: String)` | `JsonObject?` |
-| `getExperimentVariants()` | `HashMap<String, ExperimentDetails>` |
-| `getExperimentsFromStorage()` | `HashMap<String, ExperimentDetails>` |
-| `fetchExperiments(map: HashMap<String, JsonObject?>, callback: IExperimentCallback)` | `Unit` |
-| `refreshExperiment(callback: IExperimentCallback)` | `Unit` |
-| `setExperimentsToStorage(experiments: HashMap<String, ExperimentDetails>)` | `Unit` |
+| `getStringFlag(experiment_key: string, variable: string)` | `Promise<string>` |
+| `getBooleanFlag(experiment_key: string, variable: string)` | `Promise<boolean>` |
+| `getNumberFlag(experiment_key: string, variable: string)` | `Promise<number>` |
+| `getAllVariables(experiment_key: string)` | `Promise<any>` |
+| `fetchExperiments(defaultValues: object)` | `Promise<void>` |
+| `refreshExperiment()` | `Promise<void>` |
 
 ---
 
 ## Method Details
 
-### 1. getBooleanFlag
-Retrieves a boolean value from an experiment
+### 1. getStringFlag
 
-**Parameters:**
-- `experiment_key`: The experiment identifier (e.g., "feature_toggle")
-- `variable`: Variable name within the experiment (default: "value")
-- `dontCache`: If true, doesn't cache the result in memory
-- `ignoreCache`: If true, bypasses the cache and fetches fresh
-
-**Returns:** Boolean value with fallback to false
-
-**Fallback Order:**
-1. Accessed cache (if ignoreCache = false)
-2. Experiment map (fetched from server)
-3. Default map (provided at initialization)
-4. Hard-coded false
-
----
-
-### 2. getIntFlag
-Retrieves an integer value from an experiment
-
-**Parameters:**
-- `experiment_key`: The experiment identifier (e.g., "retry_config")
-- `variable`: Variable name within the experiment (default: "max_attempts")
-- `dontCache`: If true, doesn't cache the result in memory
-- `ignoreCache`: If true, bypasses the cache and fetches fresh
-
-**Returns:** Integer value with fallback to -1
-
-**Fallback Order:**
-1. Accessed cache (if ignoreCache = false)
-2. Experiment map (fetched from server)
-3. Default map (provided at initialization)
-4. Hard-coded -1
-
----
-
-### 3. getDoubleFlag
-Retrieves a double value from an experiment
-
-**Parameters:**
-- `experiment_key`: The experiment identifier (e.g., "network_config")
-- `variable`: Variable name within the experiment (default: "timeout")
-- `dontCache`: If true, doesn't cache the result in memory
-- `ignoreCache`: If true, bypasses the cache and fetches fresh
-
-**Returns:** Double value with fallback to -1.0
-
-**Fallback Order:**
-1. Accessed cache (if ignoreCache = false)
-2. Experiment map (fetched from server)
-3. Default map (provided at initialization)
-4. Hard-coded -1.0
-
----
-
-### 4. getLongFlag
-Retrieves a long value from an experiment
-
-**Parameters:**
-- `experiment_key`: The experiment identifier (e.g., "cache_config")
-- `variable`: Variable name within the experiment (default: "ttl")
-- `dontCache`: If true, doesn't cache the result in memory
-- `ignoreCache`: If true, bypasses the cache and fetches fresh
-
-**Returns:** Long value with fallback to -1L
-
-**Fallback Order:**
-1. Accessed cache (if ignoreCache = false)
-2. Experiment map (fetched from server)
-3. Default map (provided at initialization)
-4. Hard-coded -1L
-
----
-
-### 5. getStringFlag
 Retrieves a string value from an experiment
 
 **Parameters:**
 - `experiment_key`: The experiment identifier (e.g., "button_exp_test")
-- `variable`: Variable name within the experiment (default: "color")
-- `dontCache`: If true, doesn't cache the result in memory
-- `ignoreCache`: If true, bypasses the cache and fetches fresh
+- `variable`: Variable name within the experiment (required)
 
 **Returns:** String value with fallback to "" (empty string)
 
 **Fallback Order:**
-1. Accessed cache (if ignoreCache = false)
-2. Experiment map (fetched from server)
-3. Default map (provided at initialization)
-4. Hard-coded ""
+1. Experiment map (fetched from server)
+2. Default map (provided at initialization)
+3. Hard-coded "" (empty string)
+
+**Example:**
+
+```typescript
+import { Experiments } from '@dreamhorizonorg/ascend-react-native';
+
+const color = await Experiments.getStringFlag('button_exp_test', 'color');
+```
 
 ---
 
-### 6. getAllVariables
-Retrieves all variables for a specific experiment as a JsonObject
+### 2. getBooleanFlag
+
+Retrieves a boolean value from an experiment
 
 **Parameters:**
-- `experiment_key`: The experiment identifier
+- `experiment_key`: The experiment identifier (e.g., "feature_toggle")
+- `variable`: Variable name within the experiment (required)
 
-**Returns:** JsonObject? containing all variables, or default values if not found
+**Returns:** Boolean value with fallback to false
 
 **Fallback Order:**
 1. Experiment map (fetched from server)
 2. Default map (provided at initialization)
-3. Hard-coded null
+3. Hard-coded false
+
+**Example:**
+
+```typescript
+import { Experiments } from '@dreamhorizonorg/ascend-react-native';
+
+const isEnabled = await Experiments.getBooleanFlag('feature_toggle', 'enabled');
+```
 
 ---
 
-### 7. fetchExperiments
-Fetches experiments from the server on-demand
+### 3. getNumberFlag
+
+Retrieves a number value from an experiment
 
 **Parameters:**
-- `map`: HashMap of experiment experiment_keys with their default values
-- `callback`: Callback interface for success/failure handling
+- `experiment_key`: The experiment identifier (e.g., "retry_config")
+- `variable`: Variable name within the experiment (required)
+
+**Returns:** Number value with fallback to -1
+
+**Fallback Order:**
+1. Experiment map (fetched from server)
+2. Default map (provided at initialization)
+3. Hard-coded -1
+
+**Example:**
+
+```typescript
+import { Experiments } from '@dreamhorizonorg/ascend-react-native';
+
+const maxAttempts = await Experiments.getNumberFlag('retry_config', 'max_attempts');
+```
+
+---
+
+### 4. getAllVariables
+
+Retrieves all variables for a specific experiment as an object
+
+**Parameters:**
+- `experiment_key`: The experiment identifier
+
+**Returns:** Object containing all variables, or default values if not found
+
+**Fallback Order:**
+1. Experiment map (fetched from server)
+2. Default map (provided at initialization)
+3. Empty object {}
+
+**Example:**
+
+```typescript
+import { Experiments } from '@dreamhorizonorg/ascend-react-native';
+
+const allVars = await Experiments.getAllVariables('button_exp_test');
+console.log('Variables:', allVars);
+```
+
+---
+
+### 5. fetchExperiments
+
+Fetches experiments from the backend server.
+
+**Parameters:**
+- `defaultValues`: Object of experiment keys with their default values (e.g., `{ "button_color": { "color": "blue" } }`)
 
 **Behavior:**
 - Appends the provided default values to the default map
-- Triggers network requests to fetch the experiments - API CALL - getOnDemandData(newexperiment_keys, callback) -> getRemoteData(request, callback)
+- Triggers network requests to fetch the experiments
+- API CALL - POST request to `/v1/allocations` endpoint (or configured `apiEndpoint`)
 
-**getRemoteData:**
-- If defaultMap is empty immediately call onSuccess() and return
-- Adds custom headers to the HTTP request like last-modified and user-id
-- Make the API call and if success:
-  - update Headers if shouldRefreshDRSOnForeground is true in config
-  - update experimentMap
-  - remove unused experiments (not in defaultMap)
-  - Persists experimentMap to SharedPreferences
-  - Calls onSuccess() or onFailure() on the callback
+**API Request Details:**
+- **Method**: POST
+- **Endpoint**: Configured `apiEndpoint` (default: `/v1/allocations`)
+- **Headers**: 
+  - `x-experiment-keys`: From configuration headers
+  - `user-id`: Current user ID (if available)
+  - `content-type`: `application/json`
+  - Custom headers from configuration
+- **Body**: JSON payload with `experiment_keys`, `stable_id`, `user_id`, and `attributes`
+
+**On Success:**
+- Updates experiment map with fetched experiments
+- Removes experiments not in defaultExperiments
+- Persists experiment map to local storage
+
+**On Error:**
+- Throws error with error message
+
+**Example:**
+
+```typescript
+import { Experiments } from '@dreamhorizonorg/ascend-react-native';
+
+await Experiments.fetchExperiments({
+  'button_color': { 
+    color: 'blue' 
+  }
+});
+```
 
 ---
 
-### 8. refreshExperiment
-Fetches experiments using predefined experiment_keys in the default map
+### 6. refreshExperiment
+
+Fetches experiments using predefined experiment keys in the default map
 
 **Parameters:**
-- `callback`: Callback interface for success/failure handling
+- None
 
 **Behavior:**
-- Builds a DRSExperimentRequest from the keys of the defaultMap
+- Uses existing default experiments (from configuration) to refresh
+- Builds request from keys of the defaultExperiments map
 - Triggers network request to fetch experiments
-- API CALL - getRemoteWithPreDefinedRequest(callback) -> getRemoteData(request, callback)
+- API CALL - Same as `fetchExperiments` but uses default map keys
 
-**getRemoteData:**
-- If defaultMap is empty immediately call onSuccess() and return
-- Updates HTTP headers (adds guest-id/user-id/custom headers via updateHeaderMaps)
-- Makes the API call (RequestType.FETCH_EXPERIMENTS → IApi.getDRSExperiments
-- On success:
-  - If shouldRefreshDRSOnForeground is true, updates caching headers (e.g., cache window/last modified) from the response
-  - Parses response to ExperimentDetails list and updates experimentMap
-  - Removes experiments not present in defaultMap
-  - Persists experimentMap to SharedPreferences
-  - Calls onSuccess() on the callback (Main thread)
-- On error or exception:
-  - Processes error (including 304 handling) and calls onFailure() with the appropriate Throwable (Main thread)
+**On Success:**
+- If `shouldRefreshOnForeground` is true, updates caching headers (e.g., cache window/last modified) from the response
+- Parses response and updates experiment map
+- Removes experiments not present in defaultExperiments
+- Persists experiment map to local storage
 
----
+**On Error or Exception:**
+- Processes error (including 304 Not Modified handling) and throws error
 
-### 9. getExperimentVariants
-Returns a copy of all currently loaded experiment variants
+**Example:**
 
-**Parameters:**
-- None
+```typescript
+import { Experiments } from '@dreamhorizonorg/ascend-react-native';
 
-**Behavior:**
-- Returns a `HashMap<String, ExperimentDetails>` where:
-  - Key: experiment_key (experiment identifier)
-  - Value: ExperimentDetails object containing:
-    - experimentId: Unique experiment identifier
-    - experiment_key: Experiment endpoint path
-    - variantName: Name of the assigned variant
-    - variables: JsonObject containing all experiment variables/values
-- Creates a new `HashMap` copy of the mediator's experimentMap
-- No network calls - purely returns cached data
-- Data source: experimentMap populated from:
-  - Initial load from SharedPreferences (on startup)
-  - Updates from successful API responses (refreshExperiment/fetchExperiments)
-- Returns empty `HashMap` if no experiments have been loaded yet
-
----
-
-### 10. setExperimentsToStorage
-Persists experiment data to local storage and updates the in-memory cache
-
-**Parameters:**
-- `experiments`: `HashMap<String, ExperimentDetails>` containing experiment data to persist
-
-**Behavior:**
-- Converts the provided `HashMap` to a `ConcurrentHashMap` for thread safety
-- Persists the experiments data to SharedPreferences via the mediator
-- Updates the mediator's experimentMap with the new data
-- No network calls - purely local storage operation
-- Used for manually setting experiment data (e.g., from external sources or testing)
-
-**Return/Fallback Order:**
-- No return value - This is a void method
-- No fallback mechanism - If persistence fails, the error is logged but not propagated
-- Immediate effect - Data is immediately available in memory after calling this method
-- Storage failure handling - If SharedPreferences write fails, the in-memory map is still updated, so experiments remain available for the current session
-
----
-
-### 11. getExperimentsFromStorage
-Retrieves experiment data from local storage (SharedPreferences)
-
-**Parameters:**
-- None
-
-**Behavior:**
-- Returns a `HashMap<String, ExperimentDetails>` containing persisted experiment data
-- Reads from SharedPreferences using the DRS_EXPERIMENTS_PREF_KEY
-- No network calls - purely local storage operation
-- Used to retrieve previously saved experiment data
-
-**Return/Fallback Order:**
-- Returns: `HashMap<String, ExperimentDetails>` - the persisted experiment data
-- Fallback mechanism:
-  - If SharedPreferences is empty or corrupted, returns empty `HashMap`
-  - If JSON deserialization fails, returns empty `HashMap`
-  - No exception thrown - gracefully handles storage issues
-- Data source priority: Only reads from local storage, does not check in-memory cache
+await Experiments.refreshExperiment();
+```
 
 ---
 
