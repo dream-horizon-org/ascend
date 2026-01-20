@@ -17,18 +17,16 @@ Before integrating the Ascend React Native SDK, ensure your project meets the fo
 
 ## Package Installation
 
-### Using Yarn
-
-```shell
-yarn add @d11/ascend-react-native@latest                // core
-yarn add @d11/ascend-experiments-react-native@latest       // experiments plugin
-```
-
 ### Using NPM
 
 ```shell
-npm install @d11/ascend-react-native@latest              // core
-npm install @d11/ascend-experiments-react-native@latest     // experiments plugin
+npm install @dreamhorizonorg/ascend-react-native
+```
+
+### Using Yarn
+
+```shell
+yarn add @dreamhorizonorg/ascend-react-native
 ```
 
 ---
@@ -37,7 +35,11 @@ npm install @d11/ascend-experiments-react-native@latest     // experiments plugi
 
 ### iOS Setup
 
-No additional setup required for iOS. The SDK will work out of the box.
+After installing the package, run the following command to install iOS dependencies:
+
+```shell
+cd ios && pod install
+```
 
 ### Android Setup
 
@@ -45,6 +47,22 @@ No additional setup required for Android. The SDK will work out of the box.
 
 ---
 
-## TypeScript Support
+## Import Statements
 
-The SDK includes full TypeScript definitions. If you're using TypeScript, you'll get full type safety and IntelliSense support.
+After installation, import the SDK in your JavaScript/TypeScript files:
+
+```typescript
+import { Ascend, Experiments } from '@dreamhorizonorg/ascend-react-native';
+```
+
+---
+
+## Verify Installation
+
+After installation, verify that you can import the SDK:
+
+```typescript
+import { Ascend } from '@dreamhorizonorg/ascend-react-native';
+```
+
+If the import succeeds, the SDK is properly installed.

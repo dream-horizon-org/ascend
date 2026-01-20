@@ -34,9 +34,11 @@ Ready to get started? Follow our comprehensive installation guide in our [Gettin
 - [Ascend](https://github.com/dream-horizon-org/ascend) - Main repository with docs and installation scripts
 - [testlab Experiment Backend](https://github.com/dream-horizon-org/testlab) - Backend experiment server
 - [flockr Audience Backend](https://github.com/dream-horizon-org/flockr) - Audience management server
+- [ascend-astra](https://github.com/dream-horizon-org/ascend-astra) - Kong Gateway and Project Management
 - [ascend-panel](https://github.com/dream-horizon-org/ascend-panel) - Admin panel
-- [ascend-android-sdk](https://github.com/dream-horizon-org/ascend-android) - Android SDK 
-- [ascend-ios-sdk](https://github.com/dream-horizon-org/ascend-ios) - IOS SDK
+- [ascend-android](https://github.com/dream-horizon-org/ascend-android) - Android SDK 
+- [ascend-ios](https://github.com/dream-horizon-org/ascend-ios) - IOS SDK
+- [ascend-react-native](https://github.com/dream-horizon-org/ascend-react-native) - React Native SDK
 
 #### License
 
